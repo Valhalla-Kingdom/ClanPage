@@ -5,6 +5,7 @@ import AboutSection from './components/AboutSection.vue'
 import SurvivalGuide from './components/SurvivalGuide.vue'
 import RoeSection from './components/RoeSection.vue'
 import SiteFooter from './components/SiteFooter.vue'
+import GiftsSection from './components/GiftsSection.vue'
 </script>
 
 <template>
@@ -15,6 +16,7 @@ import SiteFooter from './components/SiteFooter.vue'
       <AboutSection />
       <SurvivalGuide />
       <RoeSection />
+      <GiftsSection /> 
     </main>
     <SiteFooter />
   </div>

@@ -8,15 +8,15 @@
       "Honor, Loyalty and Conquest in the Kingdom #290"
     </p>
     <div class="flex flex-col md:flex-row gap-4">
-      <a href="#sobre" class="border-2 border-medieval-gold text-medieval-gold px-8 py-3 font-bold hover:bg-medieval-gold hover:text-black transition uppercase tracking-tighter">Conheça o Clã</a>
-      <a href="#roe" class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold transition uppercase tracking-tighter">Regras do Reino</a>
+      <a href="#sobre" class="border-2 border-medieval-gold text-medieval-gold px-8 py-3 font-bold hover:bg-medieval-gold hover:text-black transition uppercase tracking-tighter">Meet the Clan</a>
+      <a href="#roe" class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold transition uppercase tracking-tighter">Kingdom Rules</a>
     </div>
   </header>
 </template>
 
 <style scoped>
 .hero-gradient {
-  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('[https://images.unsplash.com/photo-1599408162162-83733076046e?q=80&w=2070&auto=format&fit=crop](https://images.unsplash.com/photo-1599408162162-83733076046e?q=80&w=2070&auto=format&fit=crop)');
+  background: linear-gradient(rgba(93, 92, 92, 0.8), rgba(0,0,0,0.9));
   background-size: cover;
   background-position: center;
 }

@@ -16,6 +16,8 @@ const mobileMenu = ref(false);
       <a href="#sobre" class="hover:text-medieval-gold transition duration-300">About</a>
       <a href="#jogar" class="hover:text-medieval-gold transition duration-300">How to Play</a>
       <a href="#roe" class="hover:text-medieval-gold transition duration-300">RoE</a>
+      <a href="#gifts" class="hover:text-medieval-gold transition duration-300">Gifts</a>
+
       <button class="bg-medieval-gold text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 transition text-sm uppercase">Recrutamento</button>
     </div>
 
@@ -30,6 +32,7 @@ const mobileMenu = ref(false);
       <a @click="mobileMenu = false" href="#sobre">About</a>
       <a @click="mobileMenu = false" href="#jogar">How to Play</a>
       <a @click="mobileMenu = false" href="#roe">RoE</a>
+      <a @click="mobileMenu = false" href="#gifts">Gifts</a>
     </div>
   </nav>
 </template>
