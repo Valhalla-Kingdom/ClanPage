@@ -6,6 +6,9 @@ import SurvivalGuide from './components/SurvivalGuide.vue'
 import RoeSection from './components/RoeSection.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import GiftsSection from './components/GiftsSection.vue'
+import JoinClanSection from './components/JoinClanSection.vue'
+
+
 </script>
 
 <template>
@@ -17,6 +20,7 @@ import GiftsSection from './components/GiftsSection.vue'
       <SurvivalGuide />
       <RoeSection />
       <GiftsSection /> 
+      <JoinClanSection />
     </main>
     <SiteFooter />
   </div>

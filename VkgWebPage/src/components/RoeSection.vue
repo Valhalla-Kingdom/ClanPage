@@ -42,7 +42,7 @@ const roeRules = ref([
     <div class="text-center mb-16">
       <h2 class="text-4xl font-medieval font-bold mb-4 text-medieval-gold">RoE #290</h2>
       <div class="h-1 w-24 bg-medieval-gold mx-auto mb-4"></div>
-      <p class="italic text-red-500 font-bold uppercase tracking-widest text-sm">Vital para a paz diplomática do reino</p>
+      <p class="italic text-red-500 font-bold uppercase tracking-widest text-sm">Vital for the diplomatic peace of the kingdom.</p>
     </div>
     
     <div class="space-y-4">
