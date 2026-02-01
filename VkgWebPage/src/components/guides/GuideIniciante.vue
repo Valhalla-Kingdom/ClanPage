@@ -25,6 +25,7 @@ const tutorialCaptains = computed(() => {
 <template>
   <div class="space-y-8">
     
+    <!-- Introduction -->
     <div class="card-bg p-8 rounded-lg border border-white/10">
       <h2 class="text-3xl font-medieval text-white mb-6 border-b border-medieval-gold/30 pb-4">
         Starting Your Journey
@@ -34,6 +35,7 @@ const tutorialCaptains = computed(() => {
       </p>
     </div>
 
+    <!-- STEP 0: Aydae's Saga -->
     <div class="card-bg p-8 rounded-lg border border-medieval-gold/50 relative overflow-hidden">
       <div class="absolute top-0 right-0 p-4 opacity-10">
         <i class="fas fa-book-open text-9xl text-medieval-gold"></i>
@@ -72,6 +74,7 @@ const tutorialCaptains = computed(() => {
       </div>
     </div>
 
+    <!-- STEP 1: Capitol Rush -->
     <div class="card-bg p-8 rounded-lg border border-white/10">
       <div class="flex items-center gap-3 mb-4">
         <div class="bg-white/10 text-white w-8 h-8 flex items-center justify-center rounded font-bold">1</div>
@@ -91,6 +94,7 @@ const tutorialCaptains = computed(() => {
       </div>
     </div>
 
+    <!-- STEP 2: Join a Clan -->
     <div class="card-bg p-8 rounded-lg border border-white/10">
       <div class="flex items-center gap-3 mb-4">
         <div class="bg-white/10 text-white w-8 h-8 flex items-center justify-center rounded font-bold">2</div>
@@ -113,6 +117,7 @@ const tutorialCaptains = computed(() => {
       </ul>
     </div>
 
+    <!-- STEP 3: The 200 Points Rule -->
     <div class="card-bg p-8 rounded-lg border border-white/10">
       <div class="flex items-center gap-3 mb-4">
         <div class="bg-white/10 text-white w-8 h-8 flex items-center justify-center rounded font-bold">3</div>
@@ -136,6 +141,70 @@ const tutorialCaptains = computed(() => {
           <p class="text-xs text-gray-400">Mandatory goal to earn the<br><strong>Summoning Scroll</strong>.</p>
         </div>
       </div>
+    </div>
+
+    <!-- STEP 4: City Layout -->
+    <div class="card-bg p-8 rounded-lg border border-white/10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="bg-white/10 text-white w-8 h-8 flex items-center justify-center rounded font-bold">4</div>
+        <h3 class="text-xl font-medieval text-white font-bold">The Golden Standard: City Layout</h3>
+      </div>
+
+      <p class="text-gray-300 mb-6">
+        To maximize efficiency, veteran players follow a specific building ratio. This setup ensures you have enough food for upkeep, silver for production, and training speed for war.
+      </p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        
+        <!-- Farms -->
+        <div class="bg-green-900/10 border border-green-500/30 p-4 rounded text-center">
+          <i class="fas fa-wheat text-green-500 text-2xl mb-2"></i>
+          <div class="text-2xl font-bold text-white">18</div>
+          <div class="text-xs uppercase tracking-widest text-green-400">Farms</div>
+        </div>
+
+        <!-- Mansions -->
+        <div class="bg-yellow-900/10 border border-yellow-500/30 p-4 rounded text-center">
+          <i class="fas fa-home text-yellow-500 text-2xl mb-2"></i>
+          <div class="text-2xl font-bold text-white">6</div>
+          <div class="text-xs uppercase tracking-widest text-yellow-400">Mansions</div>
+        </div>
+
+        <!-- Barracks -->
+        <div class="bg-red-900/10 border border-red-500/30 p-4 rounded text-center">
+          <i class="fas fa-campground text-red-500 text-2xl mb-2"></i>
+          <div class="text-2xl font-bold text-white">10</div>
+          <div class="text-xs uppercase tracking-widest text-red-400">Barracks</div>
+        </div>
+
+        <!-- Resources -->
+        <div class="bg-gray-800/40 border border-gray-500/30 p-4 rounded text-center">
+          <i class="fas fa-hammer text-gray-400 text-2xl mb-2"></i>
+          <div class="text-2xl font-bold text-white">1</div>
+          <div class="text-xs uppercase tracking-widest text-gray-400">Of Each Resource</div>
+        </div>
+
+      </div>
+
+      <div class="bg-black/30 p-4 rounded mb-6 border border-white/5">
+        <h4 class="text-medieval-gold font-bold text-sm mb-2">Standard Buildings:</h4>
+        <p class="text-xs text-gray-400">
+          Temple, Caravan, Portal Master, Academy, Warehouse. (Always build these as they unlock).
+        </p>
+      </div>
+
+      <div class="bg-purple-900/20 p-4 border-l-4 border-purple-500 rounded flex items-start gap-3">
+        <i class="fas fa-balance-scale text-purple-400 mt-1"></i>
+        <div>
+          <strong class="text-purple-400 block mb-1">Strategic Choice:</strong> 
+          <span class="text-gray-300 text-sm">
+            This is the standard recommendation (18 Farms / 6 Mansions). However, you can adjust this balance depending on your playstyle. 
+            Prioritize <strong>Mansions</strong> if you need more Silver (Production/Research). Prioritize <strong>Farms</strong> if you need more Food (Troop Upkeep). 
+            The number of Barracks and Resource buildings should generally remain standard.
+          </span>
+        </div>
+      </div>
+
     </div>
 
   </div>

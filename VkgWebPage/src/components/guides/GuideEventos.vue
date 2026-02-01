@@ -54,7 +54,7 @@
               </p>
               <div class="bg-purple-500/10 p-3 rounded border border-purple-500/20">
                 <span class="text-purple-300 font-bold text-xs uppercase block mb-1">Golden Rule:</span>
-                <span class="text-gray-400 text-xs">You can only send <strong>1 Captain</strong> to lead the attack. Choose your best monster specialist (e.g., Carter or Beowulf).</span>
+                <span class="text-gray-400 text-xs">You can only send <strong>1 Captain</strong> to lead the attack. Choose your best monster specialist (e.g., Aydae or Beowulf).</span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-// Base de dados centralizada para Capitães e Heróis
+// Centralized database for Captains and Heroes
 
 export const captainsData = [
   {
@@ -9,23 +9,23 @@ export const captainsData = [
     units: [
       { 
         unit: "Heimdall", 
-        desc: "O Guardião da Bifrost. Defesa suprema.",
-        tips: "Essencial para proteger sua cidade e reforçar aliados durante o KvK."
+        desc: "The Guardian of Bifrost. Supreme defense.",
+        tips: "Essential for protecting your city and reinforcing allies during KvK."
       },
       { 
         unit: "Skadi", 
-        desc: "Deusa do Inverno. Debuffs massivos em inimigos.",
-        tips: "Reduz o ataque inimigo. Ótima para defender contra rallys gigantes."
+        desc: "Goddess of Winter. Massive debuffs on enemies.",
+        tips: "Reduces enemy attack. Great for defending against giant rallies."
       },
       { 
         unit: "Beowulf", 
-        desc: "Força e saúde do seu exército inteiro.",
-        tips: "O general supremo. Use-o como líder principal em qualquer batalha decisiva."
+        desc: "Strength and health for your entire army.",
+        tips: "The supreme general. Use him as the primary leader in any decisive battle."
       },
       { 
         unit: "Hércules", 
-        desc: "Força e saúde do seu exército contra monstros épicos.",
-        tips: "Indispensável para caçar monstros de nível alto em eventos como Ragnarok."
+        desc: "Strength and health for your army against epic monsters.",
+        tips: "Indispensable for hunting high-level monsters in events like Ragnarok."
       }
     ]
   },
@@ -37,43 +37,43 @@ export const captainsData = [
     units: [
       { 
         unit: "Cleópatra", 
-        desc: "Força do seu exército inteiro.",
-        tips: "Foca puramente em ataque. Combine com Ramsés para um exército equilibrado."
+        desc: "Strength for your entire army.",
+        tips: "Purely focused on attack. Combine with Ramses for a balanced army."
       },
       { 
         unit: "Ramsés II", 
-        desc: "Saúde do seu exército inteiro.",
-        tips: "Aumenta a durabilidade das tropas. O melhor parceiro para Cleópatra."
+        desc: "Health for your entire army.",
+        tips: "Increases troop durability. The best partner for Cleopatra."
       },
       { 
         unit: "Leonidas", 
-        desc: "Força e saúde das suas tropas corpo a corpo.",
-        tips: "Use apenas se seu exército for focado em Infantaria (Guards/Spearmen)."
+        desc: "Strength and health for your melee troops.",
+        tips: "Use only if your army is focused on Infantry (Guards/Spearmen)."
       },
       { 
         unit: "Alexandre", 
-        desc: "Força e saúde de suas tropas montadas.",
-        tips: "Líder ideal para ataques rápidos com cavaleiros."
+        desc: "Strength and health for your mounted troops.",
+        tips: "Ideal leader for fast attacks with cavalry."
       },
       { 
         unit: "Wu Zetian", 
-        desc: "Força e saúde de suas tropas voadoras.",
-        tips: "Potencializa Grifos e Dragões. Excelente para ataques aéreos."
+        desc: "Strength and health for your flying troops.",
+        tips: "Powers up Griffins and Dragons. Excellent for aerial attacks."
       },
       { 
         unit: "Minamoto", 
-        desc: "Força e saúde de seus soldados de longo alcance.",
-        tips: "O sniper do jogo. Use com Arqueiros para dano massivo à distância."
+        desc: "Strength and health for your long-range soldiers.",
+        tips: "The game's sniper. Use with Archers for massive ranged damage."
       },
       { 
         unit: "Amanitore", 
-        desc: "Força/Saúde em marchas de grupo, incursões e reforços.",
-        tips: "A capitã de equipe. Use sempre que liderar ou entrar em um Rally (Incursão)."
+        desc: "Strength/Health in group marches, raids, and reinforcements.",
+        tips: "The team captain. Always use when leading or joining a Rally (Raids)."
       },
       { 
         unit: "Helena", 
-        desc: "Bônus de Liderança e Tamanho de Marcha.",
-        tips: "Permite enviar mais tropas. Use para quebrar defesas fortes."
+        desc: "Leadership and March Size bonus.",
+        tips: "Allows sending more troops. Use to break strong defenses."
       }
     ]
   },
@@ -85,53 +85,53 @@ export const captainsData = [
     units: [
       { 
         unit: "Carter", 
-        desc: "Eficiência de exploração de Criptas e Capacidade de Alcatrão.",
-        tips: "Use EXCLUSIVAMENTE para explorar criptas e economizar Tar."
+        desc: "Crypt exploration efficiency and Tar capacity.",
+        tips: "Use EXCLUSIVELY for exploring crypts and saving Tar."
       },
       { 
         unit: "Stror", 
-        desc: "Velocidade de coleta de recursos e Capacidade de carga.",
-        tips: "O fazendeiro. Envie-o sempre para coletar recursos no mapa."
+        desc: "Resource gathering speed and Load capacity.",
+        tips: "The farmer. Always send him to gather resources on the map."
       },
       { 
         unit: "Aurora", 
-        desc: "Velocidade de construção.",
-        tips: "Passivo. Mantenha-a evoluída para reduzir tempo de obras na cidade."
+        desc: "Construction speed.",
+        tips: "Passive. Keep her leveled up to reduce building times in the city."
       },
       { 
         unit: "Doria", 
-        desc: "Bônus de pontos de Bravura (Valor Points).",
-        tips: "Use ao treinar tropas ou caçar para ganhar mais pontos de bravura."
+        desc: "Valor Points bonus.",
+        tips: "Use when training troops or hunting to earn more valor points."
       },
       { 
         unit: "Dustan", 
-        desc: "Bônus de pontos de Conquista (Conquest Points).",
-        tips: "Essencial para o Clash of Thrones (CoT) para maximizar sua pontuação."
+        desc: "Conquest Points bonus.",
+        tips: "Essential for Clash of Thrones (CoT) to maximize your score."
       },
       { 
         unit: "Brunhild", 
-        desc: "Força e saúde de suas tropas voadoras.",
-        tips: "A versão 'acessível' da Wu Zetian para exércitos aéreos."
+        desc: "Strength and health for your flying troops.",
+        tips: "The 'accessible' version of Wu Zetian for aerial armies."
       },
       { 
         unit: "Ingrid", 
-        desc: "Força e saúde de seus monstros.",
-        tips: "Use se o seu foco militar for unidades do tipo Monstro (Gigantes, etc)."
+        desc: "Strength and health for your monsters.",
+        tips: "Use if your military focus is on Monster-type units (Giants, etc.)."
       },
       { 
         unit: "Bernard", 
-        desc: "Força e saúde das suas tropas de longo alcance.",
-        tips: "Excelente suporte para exércitos de arqueiros."
+        desc: "Strength and health for your long-range troops.",
+        tips: "Excellent support for archer armies."
       },
       { 
         unit: "Lucius", 
-        desc: "Força e saúde de suas tropas montadas.",
-        tips: "Alternativa para cavalaria se você não tiver Alexandre."
+        desc: "Strength and health for your mounted troops.",
+        tips: "Alternative for cavalry if you don't have Alexander."
       },
       { 
         unit: "Ye Ho-Sung", 
-        desc: "Força e saúde das suas tropas corpo a corpo.",
-        tips: "Comandante de linha de frente para infantaria."
+        desc: "Strength and health for your melee troops.",
+        tips: "Frontline commander for infantry."
       }
     ]
   },
@@ -143,43 +143,43 @@ export const captainsData = [
     units: [
       { 
         unit: "Sofia", 
-        desc: "Saúde do seu exército inteiro.",
-        tips: "Vital no início do jogo para evitar perdas massivas de tropas."
+        desc: "Health for your entire army.",
+        tips: "Vital in the early game to avoid massive troop losses."
       },
       { 
         unit: "Tengel", 
-        desc: "Velocidade e alcance de marchas.",
-        tips: "Obrigatório para alcançar eventos distantes rapidamente."
+        desc: "March speed and range.",
+        tips: "Mandatory for reaching distant events quickly."
       },
       { 
         unit: "Farhad", 
-        desc: "Velocidade de pesquisa.",
-        tips: "Passivo. Evolua-o sempre para reduzir o tempo na Academia."
+        desc: "Research speed.",
+        tips: "Passive. Always evolve him to reduce time in the Academy."
       },
       { 
         unit: "Aydae", 
-        desc: "Força e saúde de seus guardas.",
-        tips: "Boa para defesa inicial da cidade com guardas básicos."
+        desc: "Strength and health for your guards.",
+        tips: "Good for initial city defense with basic guards."
       },
       { 
         unit: "Logos", 
-        desc: "Força e saúde de seus especialistas.",
-        tips: "Fortalece unidades táticas especiais."
+        desc: "Strength and health for your specialists.",
+        tips: "Strengthens special tactical units."
       },
       { 
         unit: "Próscope", 
-        desc: "Força e saúde de seus batedores.",
-        tips: "Aumenta a sobrevivência dos espiões ao investigar inimigos."
+        desc: "Strength and health for your scouts.",
+        tips: "Increases scout survival when investigating enemies."
       },
       { 
         unit: "Xi Guiying", 
-        desc: "Força de tropas de longo alcance e batedores.",
-        tips: "Híbrida inicial, boa para PvE básico."
+        desc: "Strength for long-range troops and scouts.",
+        tips: "Early hybrid, good for basic PvE."
       },
       { 
         unit: "Brann", 
-        desc: "Força e saúde das suas tropas de engenheiros.",
-        tips: "Útil se você usa muitas catapultas/balistas."
+        desc: "Strength and health for your engineer troops.",
+        tips: "Useful if you use many catapults/ballistas."
       }
     ]
   }
@@ -194,78 +194,78 @@ export const heroesData = [
     units: [
       {
         unit: "Alrick",
-        desc: "Marchas inimigas em sua Cidade levam pelo menos 4 horas sem acelerações.",
-        tips: "A defesa suprema. Force o inimigo a gastar speedups ou desistir do ataque."
+        desc: "Enemy marches to your City take at least 4 hours without speedups.",
+        tips: "The supreme defense. Force the enemy to spend speedups or give up the attack."
       },
       {
         unit: "Thaddeus",
-        desc: "+25% no máximo de Liderança para seu Herói e Capitães.",
-        tips: "Crucial para batalhas de larga escala onde o tamanho do exército define o vencedor."
+        desc: "+25% to maximum Leadership for your Hero and Captains.",
+        tips: "Crucial for large-scale battles where army size determines the winner."
       },
       {
         unit: "Matemhain",
-        desc: "+200% força/saúde de engenheiros. Restauração de Muros reduzida para 30s.",
-        tips: "Torna seus muros quase imortais e fortalece catapultas."
+        desc: "+200% strength/health for engineers. Wall restoration reduced to 30s.",
+        tips: "Makes your walls nearly immortal and strengthens catapults."
       },
       {
         unit: "Haemon",
-        desc: "Em uma Cidade governada por Haemon, os bônus do Clã são 2x mais eficazes.",
-        tips: "Use para maximizar produção e benefícios passivos do território."
+        desc: "In a City ruled by Haemon, Clan bonuses are 2x more effective.",
+        tips: "Use to maximize production and passive territory benefits."
       },
       {
         unit: "Meriones",
-        desc: "Aumenta os atributos de um conjunto completo de equipamentos em 1,5x.",
-        tips: "Transforma equipamentos lendários em armas de destruição em massa."
+        desc: "Increases the attributes of a full equipment set by 1.5x.",
+        tips: "Turns legendary equipment into weapons of mass destruction."
       },
       {
         unit: "Faron",
-        desc: "Título 'Eminência Parda': +900% para os delegados (delegados * 10).",
-        tips: "O herói definitivo para quem joga reforçando aliados (Garrison)."
+        desc: "'Grey Eminence' title: +900% for delegates (delegates * 10).",
+        tips: "The ultimate hero for those who play reinforcing allies (Garrison)."
       },
       {
         unit: "Thelensia",
-        desc: "A cada 20 horas, Thelensia recebe um presente de seus amantes.",
-        tips: "Uma fonte passiva de itens e recursos raros."
+        desc: "Every 20 hours, Thelensia receives a gift from her lovers.",
+        tips: "A passive source of rare items and resources."
       },
       {
         unit: "Ayrin",
-        desc: "Tempo ilimitado de marcha. Pode marchar para outros Reinos sem portais.",
-        tips: "Permite ataques globais e guerras entre reinos (RvR) sem restrições."
+        desc: "Unlimited march time. Can march to other Kingdoms without portals.",
+        tips: "Allows global attacks and inter-kingdom wars (RvR) without restrictions."
       },
       {
         unit: "Svyatogor",
-        desc: "+50% na força e saúde de tropas sob seu comando sem Capitães.",
-        tips: "Ótimo para enviar marchas secundárias ou fakes fortes."
+        desc: "+50% strength and health for troops under his command without Captains.",
+        tips: "Great for sending secondary marches or strong fakes."
       },
       {
         unit: "Ridong",
-        desc: "A velocidade de marcha do seu exército, Herói e Capitães é dobrada.",
-        tips: "Para ataques relâmpago onde o inimigo não tem tempo de reagir."
+        desc: "March speed for your army, Hero, and Captains is doubled.",
+        tips: "For lightning attacks where the enemy has no time to react."
       },
       {
         unit: "Guan Yu",
-        desc: "Se a iniciativa for igual, você dá o primeiro golpe (se sem aliados).",
-        tips: "Garante a vantagem do primeiro ataque em duelos x1 equilibrados."
+        desc: "If initiative is equal, you strike first (if without allies).",
+        tips: "Guarantees the first-strike advantage in balanced 1v1 duels."
       },
       {
         unit: "Yamato",
-        desc: "Após espionagem bem sucedida, mata um Herói do dono da Cidade (20min cooldown).",
-        tips: "Use antes de atacar para desativar os bônus do herói inimigo."
+        desc: "After successful scouting, kills one Hero from the City owner (20min cooldown).",
+        tips: "Use before attacking to disable enemy hero bonuses."
       },
       {
         unit: "Nectarius",
-        desc: "+250 Poções Sagradas por hora. +1.500 na capacidade máxima.",
-        tips: "Essencial para reviver tropas rapidamente após grandes perdas."
+        desc: "+250 Sacred Potions per hour. +1,500 to maximum capacity.",
+        tips: "Essential for reviving troops quickly after large losses."
       },
       {
         unit: "Garvel",
-        desc: "Avatar básico.",
-        tips: "Visual padrão masculino."
+        desc: "Basic avatar.",
+        tips: "Default male appearance."
       },
       {
         unit: "Julia",
-        desc: "Avatar básico.",
-        tips: "Visual padrão feminino."
+        desc: "Basic avatar.",
+        tips: "Default female appearance."
       }
     ]
   }
