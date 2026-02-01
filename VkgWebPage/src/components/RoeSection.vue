@@ -1,63 +1,52 @@
 <script setup>
-import { ref } from 'vue';
-
-const officialChannels = ref([
-  { name: "K290-ROE", purpose: "Official publication of the Rules of Engagement and updates." },
-  { name: "K290-WS / K290-DM", purpose: "Mandatory registration for Wellsprings and Dragon Mounds in neutral lands." },
-  { name: "K290-COURT", purpose: "Adjudication of ROE violations by Judges and Diplomats." },
-  { name: "K290-OUTLAWS", purpose: "Public list of current Outlaws who have lost ROE protection." },
-  { name: "K290-DISPUTES", purpose: "Channel dedicated to resolving minor ROE violations." }
-]);
-
-const roeRules = ref([
-  { 
-    title: "General Governance & Respect", 
-    desc: "All players must remain respectful in chats and PMs; harassment or racism is strictly prohibited. Clans must display 'we follow K290 ROE' in their description to receive protection. Players under 100k might are protected from attacks unless they are outlaws or initiate combat." 
-  },
-  { 
-    title: "Resource Gathering & Territory", 
-    desc: "Resources, Dragon Mounds (DM), and Wellsprings (WS) inside clan territory are private property. In the wild, DM and WS must be registered in official chats; ownership is forfeited if not occupied within 10 minutes. Illegal occupiers in foreign territory can be forcibly removed after a 3-minute warning." 
-  },
-  { 
-    title: "Clash of Thrones (CoT) Protocol", 
-    desc: "During CoT, you may only attack players at least half your size; attacking anyone under 50% of your might is prohibited. Standard peace rules are suspended except for the 100k might protection. The use of Captain Faron to boost votes is strictly forbidden and results in outlaw status." 
-  },
-  { 
-    title: "Royal Court & Royal Guard", 
-    desc: "The King, Queen, and Hand of the King oversee kingdom bonuses and ingot collection. The Royal Guard (RG) is authorized to attack ROE violators to retrieve unpaid compensation or remove intruders from registered resource nodes." 
-  },
-  { 
-    title: "Violations & Outlaw Status", 
-    desc: "ROE violations must be reported to clan diplomats; if unresolved within 24 hours, the case goes to the Kingdom Court. Players declared Outlaws lose all ROE protection and become free targets. Clans must expel outlaws within 24 hours or be classified as an outlaw clan themselves." 
-  },
-  { 
-    title: "Peacetime & Resource Security", 
-    desc: "Peacetime is active outside of CoT; attacks on players or portals are strictly forbidden except for outlaws or illegal occupiers. Resources (RSS), Dragon Mounds (DM), and Wellsprings (WS) within clan territory are private property and do not require registration. Rare crypts belong to the player who unlocks them; while theft is a violation, compensation is recommended but may be hard to enforce without battle reports (BR)." 
-  }
-]);
+import { officialChannels, roeRules } from '../data/dataRoe';
 </script>
 
 <template>
-  <section id="roe" class="py-20 px-6 max-w-4xl mx-auto">
+  <section id="roe" class="py-20 px-6 max-w-6xl mx-auto">
     <div class="text-center mb-16">
-      <h2 class="text-4xl font-medieval font-bold mb-4 text-medieval-gold">RoE #290</h2>
+      <h2 class="text-4xl font-medieval font-bold mb-4 text-medieval-gold">Rules of Engagement (RoE)</h2>
       <div class="h-1 w-24 bg-medieval-gold mx-auto mb-4"></div>
-      <p class="italic text-red-500 font-bold uppercase tracking-widest text-sm">Vital for the diplomatic peace of the kingdom.</p>
+      <p class="italic text-gray-400 font-bold uppercase tracking-widest text-sm">
+        Supreme Law of Kingdom #290
+      </p>
     </div>
     
-    <div class="space-y-4">
-      <div v-for="(rule, index) in roeRules" :key="index" class="border border-white/10 p-6 rounded hover:border-medieval-gold/50 transition bg-black/40">
-        <div class="flex gap-4">
-          <span class="text-medieval-gold font-bold text-xl">0{{ index + 1 }}.</span>
-          <div>
-            <h4 class="font-bold text-lg mb-2 uppercase">{{ rule.title }}</h4>
-            <p class="text-gray-400 text-sm italic">{{ rule.desc }}</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        v-for="rule in roeRules" 
+        :key="rule.id" 
+        :class="[
+          'relative p-6 rounded border transition group overflow-hidden',
+          rule.highlight 
+            ? 'bg-red-900/20 border-red-500/50 md:col-span-2 lg:col-span-3 text-center' 
+            : 'bg-black/40 border-white/10 hover:border-medieval-gold/50 hover:bg-white/5'
+        ]"
+      >
+        <i :class="['fas absolute -right-4 -bottom-4 text-6xl opacity-10 transition group-hover:scale-110 group-hover:rotate-12', rule.icon, rule.highlight ? 'text-red-500' : 'text-white']"></i>
+
+        <div class="relative z-10">
+          <div class="flex items-center gap-4 mb-3" :class="{ 'justify-center': rule.highlight }">
+            <span :class="['text-xl font-bold font-medieval', rule.highlight ? 'text-red-500' : 'text-medieval-gold']">
+              #{{ rule.id }}
+            </span>
+            <h4 class="font-bold text-lg uppercase text-white tracking-wide flex items-center gap-3">
+              <i :class="['fas text-sm', rule.icon, rule.highlight ? 'text-red-500' : 'text-medieval-gold']"></i>
+              {{ rule.title }}
+            </h4>
           </div>
+          
+          <p :class="['text-sm leading-relaxed', rule.highlight ? 'text-red-200 font-bold' : 'text-gray-400']">
+            {{ rule.desc }}
+          </p>
         </div>
       </div>
     </div>
-  </section>
 
+    <div class="mt-12 text-center text-xs text-gray-500 uppercase tracking-widest">
+      <i class="fas fa-scroll mr-2"></i> Ignorance of the law is no excuse for the penalty.
+    </div>
+  </section>
 
   <section id="channels" class="py-20 px-6 max-w-4xl mx-auto border-t border-white/5">
     <div class="text-center mb-12 border-t border-white/10 pt-16">
@@ -76,13 +65,6 @@ const roeRules = ref([
           <p class="text-gray-400 text-xs leading-relaxed">{{ channel.purpose }}</p>
         </div>
       </div>
-    </div>
-    
-    <div class="mt-16 p-6 bg-red-900/10 border border-red-500/20 rounded-lg text-center">
-      <p class="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">Warning</p>
-      <p class="text-gray-400 text-xs italic leading-relaxed">
-        "Failure to comply with official registration rules may result in immediate loss of resource ownership and protection."
-      </p>
     </div>
   </section>
 </template>
