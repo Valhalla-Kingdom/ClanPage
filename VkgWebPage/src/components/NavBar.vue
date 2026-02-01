@@ -16,15 +16,15 @@ const mobileMenu = ref(false);
     <div class="hidden lg:flex gap-6 items-center text-sm uppercase tracking-wider font-bold">
       <router-link to="/" class="hover:text-medieval-gold transition duration-300">Home</router-link>
       
-      <router-link :to="{ path: '/', hash: '#about' }" class="hover:text-medieval-gold transition duration-300">About</router-link>
+      <router-link :to="{ path: '/', hash: '#sobre' }" class="hover:text-medieval-gold transition duration-300">About</router-link>
       
       <router-link to="/guia" class="hover:text-medieval-gold transition duration-300 text-medieval-gold">Academy (Guide)</router-link>
       
-      <router-link :to="{ path: '/', hash: '#roe' }" class="hover:text-medieval-gold transition duration-300">RoE</router-link>
-      
       <router-link :to="{ path: '/', hash: '#gifts' }" class="hover:text-medieval-gold transition duration-300">Gifts</router-link>
+      
+      <router-link :to="{ path: '/', hash: '#roe' }" class="hover:text-medieval-gold transition duration-300">RoE</router-link>
 
-      <router-link :to="{ path: '/', hash: '#recruitment' }" class="bg-medieval-gold text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 transition text-xs">
+      <router-link :to="{ path: '/', hash: '#recrutamento' }" class="bg-medieval-gold text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 transition text-xs">
         Recruitment
       </router-link>
     </div>
