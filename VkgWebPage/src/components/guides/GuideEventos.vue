@@ -30,9 +30,14 @@ const getImageUrl = (name) => {
       <div class="space-y-8">
 
         <!-- 1. RAGNARÖK -->
-        <div class="relative rounded-lg border border-red-500/30 overflow-hidden group">
-          <img :src="getImageUrl(ragnarokData.img)" :alt="ragnarokData.title" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
-          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+        <div class="relative rounded-lg border border-red-500/30 overflow-hidden group bg-[#0a0a0a]">
+          <!-- Imagem com altura controlada no mobile e fade-out -->
+          <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+            <img :src="getImageUrl(ragnarokData.img)" :alt="ragnarokData.title" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+          </div>
+          <!-- Gradiente Desktop -->
+          <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
           
           <div class="relative z-10 bg-red-900/40 p-4 flex items-center gap-4 border-b border-red-500/20 backdrop-blur-sm">
             <div class="bg-red-500/10 p-3 rounded-full text-red-500 border border-red-500/20">
@@ -43,7 +48,7 @@ const getImageUrl = (name) => {
               <p class="text-xs text-gray-300 uppercase tracking-wider">{{ ragnarokData.duration }}</p>
             </div>
           </div>
-          <div class="relative z-10 p-6 space-y-4">
+          <div class="relative z-10 p-6 space-y-4 mt-8 md:mt-0">
             <p class="text-gray-100 text-sm leading-relaxed drop-shadow-md font-semibold" v-html="ragnarokData.desc"></p>
             
             <div class="grid md:grid-cols-2 gap-4">
@@ -62,19 +67,24 @@ const getImageUrl = (name) => {
         <!-- 2. OTHER PVE EVENTS (DYNAMIC) -->
         <div class="grid md:grid-cols-2 gap-6">
           <div v-for="event in pveEvents" :key="event.id" 
-               :class="['relative rounded-lg border overflow-hidden flex flex-col transition duration-500 group', event.theme.border, event.theme.hoverBorder]">
+               :class="['relative rounded-lg border overflow-hidden flex flex-col transition duration-500 group bg-[#0a0a0a]', event.theme.border, event.theme.hoverBorder]">
             
-            <img :src="getImageUrl(event.img)" :alt="event.title" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+            <template v-if="event.img">
+              <div class="absolute top-0 left-0 w-full h-48 md:h-full">
+                <img :src="getImageUrl(event.img)" :alt="event.title" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
+            </template>
             
             <div :class="['relative z-10 p-4 flex items-center gap-3 border-b backdrop-blur-sm', event.theme.headerBg, event.theme.headerBorder]">
               <i :class="['fas text-xl', event.icon, event.theme.iconColor]"></i>
               <h3 class="text-lg font-medieval text-white font-bold">{{ event.title }}</h3>
             </div>
             
-            <div class="relative z-10 p-5 flex-grow flex flex-col">
-              <p class="text-gray-100 text-xs leading-relaxed mb-4 font-semibold drop-shadow-md" v-html="event.desc"></p>
-              <div :class="['p-3 rounded border mt-auto backdrop-blur-md', event.theme.ruleBg, event.theme.ruleBorder]">
+            <div :class="['relative z-10 p-5 flex-grow flex flex-col', event.img ? 'mt-8 md:mt-0' : '']">
+              <p :class="['text-gray-100 text-xs leading-relaxed mb-4 font-semibold', event.img ? 'drop-shadow-md' : '']" v-html="event.desc"></p>
+              <div :class="['p-3 rounded border mt-auto', event.img ? 'backdrop-blur-md' : '', event.theme.ruleBg, event.theme.ruleBorder]">
                 <span :class="['font-bold text-[10px] uppercase block mb-1', event.theme.ruleTitleColor]">{{ event.ruleTitle }}</span>
                 <span class="text-gray-200 text-xs" v-html="event.ruleDesc"></span>
               </div>
@@ -87,11 +97,14 @@ const getImageUrl = (name) => {
     </div>
 
     <!-- BATTLE FOR THE THRONE (PvP Highlight) -->
-    <div class="relative rounded-lg border border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.2)] overflow-hidden group">
-      <img :src="getImageUrl(throneData.img)" :alt="throneData.title" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
-      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent"></div>
+    <div class="relative rounded-lg border border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.2)] overflow-hidden group bg-[#0a0a0a]">
+      <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+        <img :src="getImageUrl(throneData.img)" :alt="throneData.title" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
       
-      <div class="relative z-10 p-8 w-full md:w-3/4">
+      <div class="relative z-10 p-8 w-full md:w-3/4 mt-12 md:mt-0">
         <h2 class="text-4xl font-medieval text-yellow-500 mb-4 drop-shadow-lg flex items-center gap-4">
           <i class="fas fa-crown"></i> {{ throneData.title }}
         </h2>
@@ -127,11 +140,14 @@ const getImageUrl = (name) => {
       <div class="space-y-6 relative z-10">
         
         <!-- Ruthless Slaughter (Most Important) -->
-        <div class="relative rounded-lg shadow-lg overflow-hidden group border border-red-500/50">
-          <img :src="getImageUrl(ruthlessData.img)" :alt="ruthlessData.title" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
-          <div class="absolute inset-0 bg-gradient-to-r from-red-950/80 via-black/60 to-transparent"></div>
+        <div class="relative rounded-lg shadow-lg overflow-hidden group border border-red-500/50 bg-[#0a0a0a]">
+          <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+            <img :src="getImageUrl(ruthlessData.img)" :alt="ruthlessData.title" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
           
-          <div class="relative p-6">
+          <div class="relative p-6 mt-12 md:mt-0">
             <div class="flex justify-between items-start mb-3">
               <h3 class="text-2xl font-bold text-red-400 uppercase tracking-widest drop-shadow-lg"><i class="fas fa-skull text-white mr-2"></i>{{ ruthlessData.title }}</h3>
               <span class="bg-red-500 text-white text-[10px] px-2 py-1 rounded font-bold animate-pulse shadow-md">Crucial Event</span>
@@ -145,10 +161,15 @@ const getImageUrl = (name) => {
 
         <!-- Other Resurrection Events (Dynamic) -->
         <div class="grid md:grid-cols-3 gap-4">
-          <div v-for="event in resurrectionEvents" :key="event.id" class="relative rounded overflow-hidden border group transition duration-300" :class="event.theme.border">
-            <img :src="getImageUrl(event.img)" :alt="event.title" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition">
-            <div class="absolute inset-0 bg-black/50"></div>
-            <div class="relative p-4 z-10">
+          <div v-for="event in resurrectionEvents" :key="event.id" class="relative rounded overflow-hidden border group transition duration-300 bg-[#0a0a0a]" :class="event.theme.border">
+            <div class="absolute top-0 left-0 w-full h-40 md:h-full">
+              <img :src="getImageUrl(event.img)" :alt="event.title" class="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition">
+              <div class="absolute inset-0 bg-black/40 md:hidden"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+            </div>
+            <div class="absolute inset-0 bg-black/60 hidden md:block"></div>
+            
+            <div class="relative p-4 z-10 mt-8 md:mt-0">
               <h4 :class="['font-bold text-sm mb-2 drop-shadow', event.theme.iconColor]">
                 <i :class="['fas mr-2', event.icon]"></i>{{ event.title }}
               </h4>
@@ -173,14 +194,20 @@ const getImageUrl = (name) => {
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         
-        <div v-for="dev in devTournaments" :key="dev.id" class="relative rounded border border-white/10 overflow-hidden transition group p-4">
-          <img :src="getImageUrl(dev.img)" :alt="dev.title" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition">
-          <div class="absolute inset-0 bg-black/60"></div>
-          
-          <div class="relative z-10">
+        <div v-for="dev in devTournaments" :key="dev.id" class="relative rounded border border-white/10 overflow-hidden transition group p-4 bg-[#0a0a0a]">
+          <template v-if="dev.img">
+            <div class="absolute top-0 left-0 w-full h-32 md:h-full">
+              <img :src="getImageUrl(dev.img)" :alt="dev.title" class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition">
+              <div class="absolute inset-0 bg-black/40 md:hidden"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+            </div>
+            <div class="absolute inset-0 bg-black/60 hidden md:block"></div>
+          </template>
+
+          <div class="relative z-10 mt-8 md:mt-0">
             <h4 class="text-medieval-gold font-bold text-sm mb-1"><i :class="['fas mr-1', dev.icon]"></i> {{ dev.title }}</h4>
-            <p class="text-[10px] text-gray-200 mb-2 drop-shadow">{{ dev.desc }}</p>
-            <div class="text-[9px] text-gray-200 rounded bg-black/60 p-2 backdrop-blur-sm border border-white/5">
+            <p :class="['text-[10px] text-gray-200 mb-2', dev.img ? 'drop-shadow' : '']">{{ dev.desc }}</p>
+            <div :class="['text-[9px] text-gray-200 rounded', dev.img ? 'bg-black/60 p-2 backdrop-blur-sm border border-white/5' : 'bg-black/50 p-2']">
                <div v-for="(rew, index) in dev.rewards" :key="index">
                  <span :class="rew.color">{{ rew.rank }}</span> {{ rew.text }}
                </div>
@@ -188,12 +215,18 @@ const getImageUrl = (name) => {
           </div>
         </div>
 
-        <!-- Special Dev Events merged into the same grid -->
-        <div v-for="(sp, index) in specialDevEvents" :key="'sp_'+index" class="relative rounded border border-white/10 overflow-hidden transition group p-4">
-          <img :src="getImageUrl(sp.img)" :alt="sp.title" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition">
-          <div class="absolute inset-0 bg-black/60"></div>
+        <!-- Special Joined Card for Decrees & Summoning -->
+        <div v-for="(sp, index) in specialDevEvents" :key="'sp_'+index" class="relative rounded border border-white/10 overflow-hidden transition group p-4 bg-[#0a0a0a]">
+          <template v-if="sp.img">
+            <div class="absolute top-0 left-0 w-full h-32 md:h-full">
+              <img :src="getImageUrl(sp.img)" :alt="sp.title" class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition">
+              <div class="absolute inset-0 bg-black/40 md:hidden"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+            </div>
+            <div class="absolute inset-0 bg-black/60 hidden md:block"></div>
+          </template>
           
-          <div class="relative z-10">
+          <div class="relative z-10 mt-8 md:mt-0">
             <h4 class="text-medieval-gold font-bold text-sm mb-1">{{ sp.title }}</h4>
             <p class="text-[10px] text-gray-200 drop-shadow leading-relaxed" v-html="sp.desc"></p>
           </div>
@@ -209,11 +242,14 @@ const getImageUrl = (name) => {
       <div class="space-y-8">
         
         <!-- 1. Triumphal Challenge Strategy -->
-        <div class="relative overflow-hidden rounded-lg border border-white/10 group">
-          <img :src="getImageUrl(triumphalData.strategy.img)" alt="Triumphal Challenge" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
-          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+        <div class="relative overflow-hidden rounded-lg border border-white/10 group bg-[#0a0a0a]">
+          <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+            <img :src="getImageUrl(triumphalData.strategy.img)" alt="Triumphal Challenge" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
           
-          <div class="relative z-10 p-6">
+          <div class="relative z-10 p-6 mt-12 md:mt-0">
             <div class="flex items-center gap-3 mb-4">
               <div class="bg-medieval-gold text-black w-8 h-8 rounded flex items-center justify-center font-bold">1</div>
               <h3 class="text-xl font-bold text-medieval-gold drop-shadow-md">{{ triumphalData.strategy.title }}</h3>
@@ -238,11 +274,14 @@ const getImageUrl = (name) => {
         </div>
 
         <!-- 2. Combat Tactics -->
-        <div class="relative overflow-hidden rounded-lg border border-red-500/30 group">
-          <img :src="getImageUrl(triumphalData.tactics.img)" alt="Combat Tactics" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
-          <div class="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent"></div>
+        <div class="relative overflow-hidden rounded-lg border border-red-500/30 group bg-[#0a0a0a]">
+          <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+            <img :src="getImageUrl(triumphalData.tactics.img)" alt="Combat Tactics" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-700">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
           
-          <div class="relative z-10 p-6 md:w-3/4">
+          <div class="relative z-10 p-6 md:w-3/4 mt-12 md:mt-0">
             <div class="flex items-center gap-3 mb-4">
               <div class="bg-medieval-gold text-black w-8 h-8 rounded flex items-center justify-center font-bold">2</div>
               <h3 class="text-xl font-bold text-medieval-gold drop-shadow-md">{{ triumphalData.tactics.title }}</h3>
@@ -259,11 +298,14 @@ const getImageUrl = (name) => {
         </div>
 
         <!-- 3. Rise of the Ancients -->
-        <div class="relative overflow-hidden rounded-lg border border-blue-500/30 group">
-          <img :src="getImageUrl(triumphalData.ancients.img)" alt="Rise of the Ancients" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
-          <div class="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent"></div>
+        <div class="relative overflow-hidden rounded-lg border border-blue-500/30 group bg-[#0a0a0a]">
+          <div class="absolute top-0 left-0 w-full h-56 md:h-full">
+            <img :src="getImageUrl(triumphalData.ancients.img)" alt="Rise of the Ancients" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-500">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] md:hidden"></div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent hidden md:block"></div>
 
-          <div class="relative z-10 p-6 w-full md:w-2/3">
+          <div class="relative z-10 p-6 w-full md:w-2/3 mt-12 md:mt-0">
             <div class="flex items-center gap-3 mb-4">
               <div class="bg-medieval-gold text-black w-8 h-8 rounded flex items-center justify-center font-bold">3</div>
               <h3 class="text-xl font-bold text-medieval-gold drop-shadow-md">{{ triumphalData.ancients.title }}</h3>

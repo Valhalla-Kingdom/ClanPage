@@ -16,7 +16,7 @@ const tabs = [
   { id: 'iniciante', label: 'First Steps', icon: 'fa-shoe-prints', component: GuideIniciante },
   { id: 'economia', label: 'Economy & Resources', icon: 'fa-coins', component: GuideEconomia },
   { id: 'militar', label: 'Military & Captains', icon: 'fa-chess-knight', component: GuideMilitar },
-  { id: 'eventos', label: 'Daily Events', icon: 'fa-calendar-alt', component: GuideEventos },
+  { id: 'eventos', label: 'Events', icon: 'fa-calendar-alt', component: GuideEventos },
   // { id: 'calculator', label: 'Army Calculator', icon: 'fa-calculator', component: GuideCalculator }, 
   { id: 'dicas', label: 'Pro Tips', icon: 'fa-lightbulb', component: GuideDicas }
 ];
