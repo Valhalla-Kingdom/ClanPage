@@ -1,4 +1,7 @@
 // Centralized database for Captains and Heroes
+import unitData from './units.json' assert { type: 'json' };
+
+export const unitsDB = unitData;
 
 export const captainsData = [
   {

@@ -32,8 +32,8 @@ export const dailyGifts = [
 
 // --- 2. TB Gifts (Únicos) ---
 export const oneTimeGifts = [
-  createGift(1, "1k Gold + 2x3h Speedups", "ref3_out_fZ16", "https://totalbattle.onelink.me/Xsl6/ukfounro"),
-  createGift(2, "Portals and Teleport", "rm65649016820614116771", "intent://deeplink?&deep_link_value=community_link_rm65649016820614116771#Intent;scheme=totalbattle;end"),
+  createGift(1, "Portals and Teleport", "rm65649016820614116771", "https://totalbattle.com/pt/?present=rm65649016820614116771&source=email&pid=braze&is_retargeting=true&typ=RM&af_xp=email&lid=7hoq2998dwyp&source_caller=ui&shortlink=63ba5ihl&deep_link_value=reward_link_rm65649016820614116771&c=reward_link"),
+  createGift(2, "1k Gold + 2x3h Speedups", "ref3_out_fZ16", "https://totalbattle.onelink.me/Xsl6/ukfounro"),
   createGift(3, "5k Building Materials", "rm88699238334633291419", "intent://deeplink?&deep_link_value=community_link_rm88699238334633291419#Intent;scheme=totalbattle;end"),
   createGift(4, "Portal + 20 March Speedups", "rm65718111692502663920", "intent://deeplink?&deep_link_value=community_link_rm65718111692502663920#Intent;scheme=totalbattle;end"),
   createGift(5, "15 Tengel Fragments", "rm88358274959472004847", "intent://deeplink?&deep_link_value=community_link_rm88358274959472004847#Intent;scheme=totalbattle;end"),

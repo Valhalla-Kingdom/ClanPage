@@ -16,7 +16,7 @@
         <div class="mt-8 p-4 bg-blue-900/10 border border-blue-900/30 rounded">
           <h4 class="text-medieval-gold font-bold mb-2 uppercase text-sm"><i class="fas fa-handshake mr-2"></i>Diplomacy</h4>
           <p class="text-gray-400">We follow the <strong>ROE 290</strong>.</p>
-          <p class="text-gray-400">Allies: <span class="text-white font-mono">[VGG] , [ASS] And [ABC]</span></p>
+          <p class="text-gray-400">Allies: <span class="text-white font-mono">[BAT] , [ASS] And [ABC]</span></p>
         </div>
 
         <div class="grid grid-cols-3 gap-4 text-center mt-8">

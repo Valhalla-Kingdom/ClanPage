@@ -21,7 +21,7 @@ export const roeRules = [
   { 
     id: 2, 
     title: "Protection of Minors", 
-    desc: "Clanless players with less than 500k power are protected by the RoE.", 
+    desc: "Clanless players with less than 100k power are protected by the RoE.", 
     icon: "fa-shield-heart" 
   },
   { 

@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-8">
-    
     <!-- Troop Stacking Strategy -->
     <div class="card-bg p-8 rounded-lg border border-white/10">
       <h2 class="text-3xl font-medieval text-white mb-6 border-b border-medieval-gold/30 pb-4">
@@ -323,7 +322,7 @@
             <i class="fas fa-dungeon mr-2"></i> The "Carter First" Rule
           </h4>
           <p class="text-gray-300 text-sm mb-3">
-            Crypting is your main source of early growth. <strong>Do not</strong> build armor for other captains until Carter is maximized.
+            Crypting is your main source of early growth. <strong>Avoid </strong>building armor for other captains until Carter has good crypt equipment.
           </p>
           <ul class="list-disc pl-5 text-xs text-gray-400 space-y-1">
             <li>Craft Level 3 → 5 → 7 equipment for Carter <strong>first</strong>.</li>

@@ -1,0 +1,342 @@
+{
+  "guardsmen": [
+    {
+      "tier": "T1",
+      "units": [
+        { "unit": "T1 Archers", "type": "ranged", "strength": 50, "health": 150, "leadership": 1, "cost": 300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T1 Spearmen", "type": "melee", "strength": 50, "health": 150, "leadership": 1, "cost": 300, "rez_cost": 40 , "rez_gold_cost": 4 },
+        { "unit": "T1 Riders", "type": "mounted", "strength": 100, "health": 300, "leadership": 2, "cost": 600, "rez_cost": 80 , "rez_gold_cost": 8 }
+      ]
+    },
+    {
+      "tier": "T2",
+      "units": [
+        { "unit": "T2 Archers", "type": "ranged", "strength": 90, "health": 270, "leadership": 1, "cost": 500, "rez_cost": 40 , "rez_gold_cost": 4 },
+        { "unit": "T2 Spearmen", "type": "melee", "strength": 90, "health": 270, "leadership": 1, "cost": 500, "rez_cost": 40 , "rez_gold_cost": 4 },
+        { "unit": "T2 Riders", "type": "mounted", "strength": 180, "health": 540, "leadership": 2, "cost": 1000, "rez_cost": 80 , "rez_gold_cost": 8 }
+      ]
+    },
+    {
+      "tier": "T3",
+      "units": [
+        { "unit": "T3 Archers", "type": "ranged", "strength": 160, "health": 480, "leadership": 1, "cost": 700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T3 Spearmen", "type": "melee", "strength": 160, "health": 480, "leadership": 1, "cost": 700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T3 Riders", "type": "mounted", "strength": 320, "health": 960, "leadership": 2, "cost": 1400, "rez_cost": 80, "rez_gold_cost": 8 }
+      ]
+    },
+    {
+      "tier": "T4",
+      "units": [
+        { "unit": "T4 Archers", "type": "ranged", "strength": 290, "health": 870, "leadership": 1, "cost": 900, "rez_cost": 40 , "rez_gold_cost": 4 },
+        { "unit": "T4 Spearmen", "type": "melee", "strength": 290, "health": 870, "leadership": 1, "cost": 900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T4 Riders", "type": "mounted", "strength": 580, "health": 1740, "leadership": 2, "cost": 1800, "rez_cost": 80, "rez_gold_cost": 8 }
+      ]
+    },
+    {
+      "tier": "T5",
+      "units": [
+        { "unit": "T5 Archers", "type": "ranged", "strength": 520, "health": 1560, "leadership": 1, "cost": 1100, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T5 Spearmen", "type": "melee", "strength": 520, "health": 1560, "leadership": 1, "cost": 1100, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T5 Riders", "type": "mounted", "strength": 1050, "health": 3150, "leadership": 2, "cost": 2200, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T5 Battle griffin", "type": "flying", "strength": 10000, "health": 30000, "leadership": 20, "cost": 22000, "rez_cost": 800, "rez_gold_cost": 80 }
+      ]
+    },
+    {
+      "tier": "T6",
+      "units": [
+        { "unit": "T6 Heavy arbalester", "type": "ranged", "strength": 940, "health": 2820,"leadership": 1, "cost": 1300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T6 Heavy Halberdier", "type": "melee", "strength": 940, "health": 2820, "leadership": 1, "cost": 1300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T6 Mounted knight", "type": "mounted", "strength": 1900, "health": 5700, "leadership": 2, "cost": 2600, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T6 Battle griffin", "type": "flying", "strength": 19000, "health": 57000, "leadership": 20, "cost": 26000, "rez_cost": 800, "rez_gold_cost": 80 }
+      ]
+    },
+    {
+      "tier": "T7",
+      "units": [
+        { "unit": "T7 Heavy arbalester", "type": "ranged", "strength": 1700, "health": 5100, "leadership": 1, "cost": 1500, "rez_cost": 40 , "rez_gold_cost": 4 },
+        { "unit": "T7 Heavy Halberdier", "type": "melee", "strength": 1700, "health": 5100, "leadership": 1, "cost": 1500, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T7 Mounted knight", "type": "mounted", "strength": 3400, "health": 10200, "leadership": 2, "cost": 3000, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T7 Battle griffin", "type": "flying", "strength": 34000, "health": 102000, "leadership": 20, "cost": 30000, "rez_cost": 800, "rez_gold_cost": 80 }
+      ]
+    },
+    {
+      "tier": "Especial I",
+      "units": [
+        { "unit": "TI Purifier", "type": "ranged", "strength": 3060, "health": 9180, "leadership": 1, "cost": 1700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TI Punisher", "type": "melee", "strength": 3060, "health": 9180, "leadership": 1, "cost": 1700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TI Smiter", "type": "mounted", "strength": 6120, "health": 18360, "leadership": 2, "cost": 3400, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "TI Corax", "type": "flying", "strength": 61200, "health": 183600, "leadership": 20, "cost": 34000, "rez_cost": 800, "rez_gold_cost": 80 }
+      ]
+    },
+    {
+      "tier": "Especial II",
+      "units": [
+        { "unit": "TII Purifier", "type": "ranged", "strength": 5510, "health": 16530, "leadership": 1, "cost": 1900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TII Punisher", "type": "melee", "strength": 5510, "health": 16530, "leadership": 1, "cost": 1900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TII Smiter", "type": "mounted", "strength": 11020, "health": 33060, "leadership": 2, "cost": 3800, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "TII Corax", "type": "flying", "strength": 110200, "health": 330600, "leadership": 25, "cost": 38000, "rez_cost": 800, "rez_gold_cost": 80 }
+      ]
+    }
+  ],
+  "specialists": [
+    {
+      "tier": "T1",
+      "units": [
+        { "unit": "T1 Swordsmen", "cost": 300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T1 Spies", "cost": 1500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "T2",
+      "units": [
+        { "unit": "T2 Swordsmen", "cost": 500, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T2 Spies", "cost": 2500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "T3",
+      "units": [
+        { "unit": "T3 Swordsmen", "cost": 700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T3 Spies", "cost": 3500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "T4",
+      "units": [
+        { "unit": "T4 Swordsmen", "cost": 900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T4 Spies", "cost": 4500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "T5",
+      "units": [
+        { "unit": "T5 Swordsmen", "cost": 1100, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T5 Spies", "cost": 5500, "rez_cost": 200, "rez_gold_cost": 20 },
+        { "unit": "T5 Deadshots", "cost": 1100, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T5 Lion riders", "cost": 2200, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T5 Vultures", "cost": 1100, "rez_cost": 40, "rez_gold_cost": 4 }
+      ]
+    },
+    {
+      "tier": "T6",
+      "units": [
+        { "unit": "T6 Deadshots", "cost": 1300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T6 Lion Riders", "cost": 2600, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T6 Vultures", "cost": 1300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T6 Heavy Knight", "cost": 1300, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T6 Swift jaeger", "cost": 6500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "T7",
+      "units": [
+        { "unit": "T7 Deadshots", "cost": 1500, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T7 Lion Riders", "cost": 3000, "rez_cost": 200, "rez_gold_cost": 20 },
+        { "unit": "T7 Vultures", "cost": 1500, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T7 Heavy Knight", "cost": 1500, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "T7 Swift Jaeger", "cost": 7500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "Especial I",
+      "units": [
+        { "unit": "TI Legitimist", "cost": 1700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TI Duelist", "cost": 1700, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TI Whitemane", "cost": 3400, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "TI Royal lion", "cost": 34000, "rez_cost": 800, "rez_gold_cost": 80 },
+        { "unit": "TI Panoptic", "cost": 8500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    },
+    {
+      "tier": "Especial II",
+      "units": [
+        { "unit": "TII Legitimist", "cost": 1900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TII Duelist", "cost": 1900, "rez_cost": 40, "rez_gold_cost": 4 },
+        { "unit": "TII Whitemane", "cost": 3800, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "TII Royal lion", "cost": 38000, "rez_cost": 800, "rez_gold_cost": 80 },
+        { "unit": "TII Panoptic", "cost": 9500, "rez_cost": 200, "rez_gold_cost": 20 }
+      ]
+    }
+  ],
+  "engineer_corps": [
+    {
+      "tier": "T1",
+      "units": [{ "unit": "T1 Catapults", "cost": 3000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T2",
+      "units": [{ "unit": "T2 Catapults", "cost": 5000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T3",
+      "units": [{ "unit": "T3 Catapults", "cost": 7000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T4",
+      "units": [{ "unit": "T4 Catapults", "cost": 9000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T5",
+      "units": [{ "unit": "T5 Catapults", "cost": 11000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T6",
+      "units": [{ "unit": "T6 Ballistae", "cost": 13000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "T7",
+      "units": [{ "unit": "T7 Ballistae", "cost": 15000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "Especial I",
+      "units": [{ "unit": "TI Josephine", "cost": 17000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    },
+    {
+      "tier": "Especial II",
+      "units": [{ "unit": "TII Josephine", "cost": 19000, "rez_cost": 400, "rez_gold_cost": 40 }]
+    }
+  ],
+  "monsters": [
+    {
+      "tier": "T3",
+      "units": [
+        { "unit": "T3 Emerald Dragon", "cost": 19600, "rez_cost": 1120, "rez_gold_cost": 112 },
+        { "unit": "T3 Water Elemental", "cost": 8400, "rez_cost": 480, "rez_gold_cost": 48 },
+        { "unit": "T3 Stone Gargoyle", "cost": 22400, "rez_cost": 1280, "rez_gold_cost": 128 },
+        { "unit": "T3 Battle Boar", "cost": 16760, "rez_cost": 960, "rez_gold_cost": 96 }
+      ]
+    },
+    {
+      "tier": "T4",
+      "units": [
+        { "unit": "T4 Magic Dragon", "cost": 46800, "rez_cost": 2080 , "rez_gold_cost": 208 },
+        { "unit": "T4 Ice Phoenix", "cost": 54000, "rez_cost": 2400, "rez_gold_cost": 240 },
+        { "unit": "T4 Many-Armed Guardian", "cost": 39600, "rez_cost": 1760, "rez_gold_cost": 176 },
+        { "unit": "T4 Gorgon Medusa", "cost": 35920, "rez_cost": 1600, "rez_gold_cost": 160 }
+      ]
+    },
+    {
+      "tier": "T5",
+      "units": [
+        { "unit": "T5 Desert Vanquisher", "cost": 87900, "rez_cost": 3200, "rez_gold_cost": 320 },
+        { "unit": "T5 Flaming Centaur", "cost": 92400, "rez_cost": 3360, "rez_gold_cost": 336 },
+        { "unit": "T5 Ettin", "cost": 101130, "rez_cost": 3680, "rez_gold_cost": 368 },
+        { "unit": "T5 Fearsome Manticore", "cost": 96760, "rez_cost": 3520, "rez_gold_cost": 352 }
+      ]
+    },
+    {
+      "tier": "T6",
+      "units": [
+        { "unit": "T6 Crystal Dragon", "cost": 171600, "rez_cost": 5280, "rez_gold_cost": 528 },
+        { "unit": "T6 Frost Dragon", "cost": 182000, "rez_cost": 5600, "rez_gold_cost": 560 },
+        { "unit": "T6 Shadow Demon", "cost": 156000, "rez_cost": 4800, "rez_gold_cost": 480 },
+        { "unit": "T6 War Chimera", "cost": 176000, "rez_cost": 5440, "rez_gold_cost": 544 }
+      ]
+    }
+  ],
+  "mercenaries": [
+    {
+      "tier": "T5",
+      "units": [
+        { "unit": "T5 Swift Marksman", "cost": 80000, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T5 Scorpion", "cost": 800000, "rez_cost": 800, "rez_gold_cost": 80 },
+        { "unit": "T5 Gargoyle", "cost": 1500000, "rez_cost": 1500, "rez_gold_cost": 150 },
+        { "unit": "T5 Bear", "cost": 1600000, "rez_cost": 1600, "rez_gold_cost": 160 },
+        { "unit": "T5 Unicorn Rider", "cost": 2000000, "rez_cost": 2000, "rez_gold_cost": 200 },
+        { "unit": "T5 Bull Rider", "cost": 2200000, "rez_cost": 2200, "rez_gold_cost": 220 },
+        { "unit": "T5 Giant Zombie", "cost": 2500000, "rez_cost": 2500, "rez_gold_cost": 250 },
+        { "unit": "T5 Scorpion Rider", "cost": 2800000, "rez_cost": 2800, "rez_gold_cost": 280 },
+        { "unit": "T5 Ifrit", "cost": 3300000, "rez_cost": 3300, "rez_gold_cost": 330 },
+        { "unit": "T5 Cyclops", "cost": 3400000, "rez_cost": 3400, "rez_gold_cost": 340 },
+        { "unit": "T5 Fireworm Rider", "cost": 3800000, "rez_cost": 3800, "rez_gold_cost": 380 }
+      ]
+    },
+    {
+      "tier": "T6",
+      "units": [
+        { "unit": "T6 Arbalester / Trailseeker", "cost": 80000, "rez_cost": 80, "rez_gold_cost": 8 },
+        { "unit": "T6 Legionary / Knight", "cost": 900000, "rez_cost": 900, "rez_gold_cost": 90 },
+        { "unit": "T6 Chariot / Rhino Rider", "cost": 1600000, "rez_cost": 1600, "rez_gold_cost": 160 },
+        { "unit": "T6 Sphinx / Shedu", "cost": 1700000, "rez_cost": 1700, "rez_gold_cost": 170 },
+        { "unit": "T6 Pathfinder / Pionnier", "cost": 400000, "rez_cost": 400, "rez_gold_cost": 40 },
+        { "unit": "T6 Trebuchet", "cost": 2300000, "rez_cost": 2300, "rez_gold_cost": 230 },
+        { "unit": "T6 Death Chariots", "cost": 2600000, "rez_cost": 2600, "rez_gold_cost": 260 },
+        { "unit": "T6 Bone Golem", "cost": 2900000, "rez_cost": 2900, "rez_gold_cost": 290 },
+        { "unit": "T6 Ent", "cost": 3400000, "rez_cost": 3400, "rez_gold_cost": 340 },
+        { "unit": "T6 Cursed Dendroids", "cost": 3500000, "rez_cost": 3500, "rez_gold_cost": 350 }
+      ]
+    }
+  ],
+  "captains": [
+    {
+      "tier": "Mythical",
+      "units": [
+          { "unit": "Beowulf", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Heimdall", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Hercules", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Skadi", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 }
+      ]
+    },
+    {
+      "tier": "Legendary",
+      "units": [
+          { "unit": "Alexander", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Amanitore", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Cleopatra", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Helena", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Leonidas", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Minamoto", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Ramses II", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Wu Zetian", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 }
+      ]
+    },
+    {
+      "tier": "Epic",
+      "units": [
+        { "unit": "Aurora", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Aydae", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Bernard", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Brunhild", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Carter", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Doria", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Dustan", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Ingrid", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Lucius", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Stror", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Ye Ho-Sung", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 }
+      ]
+    },
+    {
+      "tier": "Rare",
+      "units": [
+          { "unit": "Brann", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Logos", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Próscope", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Sofia", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Tengel", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+          { "unit": "Xi Guiying", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 }
+      ]
+    }
+  ],
+  "heroes": [
+    {"tier": "Avatar",
+      "units": [
+        { "unit": "Alrick", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Ayrin", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Faron", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Guan yu", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Garvel", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Haemon", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Julia", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Matemhain", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 } ,
+        { "unit": "Meriones", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Nectarius", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Ridong", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Svyatogor", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Thaddeus", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Thelensia", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 },
+        { "unit": "Yamato", "cost": 0, "rez_cost": 50, "rez_gold_cost": 5 }
+      ]
+    }
+  ]
+}
