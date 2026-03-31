@@ -15,7 +15,7 @@ const createGift = (id, title, code, customMobile = null) => {
     // Lógica do Mobile:
     // Se você forneceu um link específico (ex: onelink.me ou intent://), usa ele.
     // Se não, tenta gerar o deep link padrão.
-    mobile: customMobile || `totalbattle://?cmd=gift&code=${cleanCode}`
+    mobile: customMobile || `intent://deeplink?&deep_link_value=reward_link_${cleanCode}#Intent;scheme=totalbattle;end`
   };
 };
 
