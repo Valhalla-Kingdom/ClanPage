@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import GuideView from '../views/GuideView.vue'
+import ManagementView from '../components/ManagementView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: '/guia',
       name: 'guide',
       component: GuideView
+    },
+    {
+      path: '/management',
+      name: 'management',
+      component: ManagementView
     }
   ],
   scrollBehavior(to, from, savedPosition) {

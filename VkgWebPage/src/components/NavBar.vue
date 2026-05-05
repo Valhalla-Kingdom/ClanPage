@@ -24,6 +24,10 @@ const mobileMenu = ref(false);
       <router-link :to="{ path: '/', hash: '#recrutamento' }" class="bg-blue-600/20 border border-blue-500/50 text-blue-400 px-4 py-2 rounded font-bold hover:bg-blue-600 hover:text-white transition text-xs shadow-[0_0_10px_rgba(59,130,246,0.2)]">
         Recruitment
       </router-link>
+            <!-- Novo Link de Gerenciamento -->
+      <router-link to="/management" class="hover:text-blue-400 transition duration-300 flex items-center gap-2">
+        <i class="fas fa-crown"></i> Management
+      </router-link>
     </div>
 
     <!-- Mobile Toggle Button -->
