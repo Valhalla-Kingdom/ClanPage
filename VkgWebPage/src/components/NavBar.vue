@@ -47,7 +47,9 @@ const mobileMenu = ref(false);
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#gifts' }" class="hover:text-blue-400 transition">Gifts</router-link>
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#roe' }" class="hover:text-blue-400 transition">RoE</router-link>
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#recrutamento' }" class="hover:text-blue-400 transition">Recruitment</router-link>
-        
+        <router-link @click="mobileMenu = false" to="/management" class="hover:text-blue-400 transition text-blue-300">
+          <i class="fas fa-crown mr-2"></i> Management
+        </router-link>
         <div class="mt-8 border-t border-slate-800/80 w-1/2"></div>
         <p class="text-xs text-slate-500 font-sans uppercase tracking-widest">WLF Shadow</p>
       </div>
