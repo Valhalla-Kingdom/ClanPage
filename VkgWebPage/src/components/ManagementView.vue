@@ -2,15 +2,16 @@
 import { ref, computed } from 'vue';
 
 // --- VAULTS STATE ---
-const vaultTinmanCount = ref(2);
-const vaultClockMinutes = ref(13);
+const vaultTinmanCount = ref(3);
+const vaultClockMinutes = ref(17);
 
 // --- TINMAN STATE ---
-const tinmanCount = ref(4);
-const tinmanClockMinutes = ref(13);
-const tinmanBonus = ref("34.5");
+const tinmanCount = ref(3);
+const tinmanClockMinutes = ref(17);
+const tinmanBonus = ref("49.5");
 const tinmanTime1 = ref("2 hours after start (RESET +2)");
-const tinmanTime2 = ref("Right after the first summon");
+const tinmanTime2 = ref("Reset + 7 hours (RESET +7)");
+const tinmanTime3 = ref("Reset -2 hours (RESET -2)");
 
 // --- GENERATED MESSAGES (COMPUTED - NO EMOJIS) ---
 const vaultMessage = computed(() => {
@@ -18,19 +19,19 @@ const vaultMessage = computed(() => {
 });
 
 const tinmanMessage = computed(() => {
-  return `[WLF] Wolf - Tinman Summoning\n\nGood morning, Good afternoon, Good evening to all Wolves!\n\nTHE MOUNTAIN TREMBLES, THE TREES BEND ON THE HILL, SOMETHING IS COMING!! MY GOD!!! IT IS THE TINMAN!\n\nThis time we have ${tinmanCount.value} Summons of:\n${tinmanClockMinutes.value} Minutes each and a Bonus of ${tinmanBonus.value}%\n\nThe summons will be at the following times:\n1st Summon: ${tinmanTime1.value}\n2nd Summon: ${tinmanTime2.value}`;
+  return `[WLF] Wolf - Tinman Summoning\n\nGood morning, Good afternoon, Good evening to all Wolves!\n\nTHE MOUNTAIN TREMBLES, THE TREES BEND ON THE HILL, SOMETHING IS COMING!! MY GOD!!! IT IS THE TINMAN!\n\nThis time we have ${tinmanCount.value} Summons of:\n${tinmanClockMinutes.value} Minutes each and a Bonus of ${tinmanBonus.value}%\n\nThe summons will be at the following times:\n1st Summon: ${tinmanTime1.value}\n2nd Summon: ${tinmanTime2.value}\n3rd Summon: ${tinmanTime3.value}`;
 });
 
 const ragnarokMessage = computed(() => {
-  return `[WLF] Wolf - Ragnarok Alert\n\nRagnarok is upon us! Slay the monsters, gather the coins, and DO NOT FORGET to spend them on CLAN CHESTS in the Ragnarok Shop.\n\nLet's flood our clan chat with gifts! The strength of the wolf is the pack!`;
+  return `[WLF] Wolf - Ragnarok Alert\n\nRagnarok has arrived! Defeat the monsters, collect the coins, and DON'T FORGET to spend them on CLAN CHESTS in the Ragnarok Shop.\n\nLet's flood our clan chat with gifts! The strength of the wolf lies in the pack!\n\nIt's a great time to level up your troops; if they are Guards, wait for the event to start before finishing the research so you can pull off the Ragnarok Trick.`;
 });
 
 const olympusMessage = computed(() => {
-  return `[WLF] Wolf - Olympus Decree\n\nWarriors of Olympus! Make sure to complete your Battle Pass tasks to maximize your Hermes Points.\n\nCrucial: Spend your points to buy CLAN CHESTS in the Olympus Shop to support the family. Let's grow together!`;
+  return `[WLF] Wolf - Olympus Decree\n\nWarriors of Olympus! 5-Day Event Schedule (176 Total Missions):\n- Day 1: 35 Missions (RAIDS / Clan Incursions)\n- Day 2: 21 Missions (Hero vs Epic Monster)\n- Day 3: 20 Missions (Resource Gathering + CP on Lava Fountains)\n- Day 4: 20 Missions (Crypt Exploration)\n- Day 5: 80 Missions (3 Captains vs Epic Boss - Briareus)\n\nCrucial: Complete your tasks to maximize Hermes Points and spend them to buy CLAN CHESTS in the Olympus Shop to support the family. Let's grow together!`;
 });
 
 const darkOmensMessage = computed(() => {
-  return `[WLF] Wolf - Dark Omens\n\nThe portals are open! Hit the Dark Omens portals, collect the summoning items, and let's spawn the bosses together.\n\nMaximum participation required. Share the wealth!`;
+  return `[WLF] Wolf - Dark Omens\n\nThe Arcanomancers have arrived! Attack the Epic Monster, collect essence and Monster Summoning Cards, and let's summon the monsters together when the Superior gives the word.\n\nMaximum participation required—collect as much essence as possible and share the rewards!`;
 });
 
 // --- COPY FUNCTION ---

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import GuideView from '../views/GuideView.vue'
 import ManagementView from '../components/ManagementView.vue'
+import ClanEventsView from '../views/ClanEventsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,12 @@ const router = createRouter({
       path: '/management',
       name: 'management',
       component: ManagementView
+    },
+    {
+      path: '/eventos',
+      name: 'eventos',
+      component: ClanEventsView,
+      alias: ['/events', '/clan-events']
     }
   ],
   scrollBehavior(to, from, savedPosition) {

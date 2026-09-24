@@ -19,12 +19,15 @@ const mobileMenu = ref(false);
       <router-link to="/" class="hover:text-blue-400 transition duration-300">Home</router-link>
       <router-link :to="{ path: '/', hash: '#sobre' }" class="hover:text-blue-400 transition duration-300">About</router-link>
       <router-link to="/guia" class="hover:text-blue-400 transition duration-300 text-blue-400">Academy (Guide)</router-link>
+      <router-link to="/eventos" class="hover:text-blue-400 transition duration-300 flex items-center gap-1.5 text-amber-400">
+        <i class="fas fa-trophy"></i> Clan Events
+      </router-link>
       <router-link :to="{ path: '/', hash: '#roe' }" class="hover:text-blue-400 transition duration-300">RoE</router-link>
       <router-link :to="{ path: '/', hash: '#gifts' }" class="hover:text-blue-400 transition duration-300">Gifts</router-link>
       <router-link :to="{ path: '/', hash: '#recrutamento' }" class="bg-blue-600/20 border border-blue-500/50 text-blue-400 px-4 py-2 rounded font-bold hover:bg-blue-600 hover:text-white transition text-xs shadow-[0_0_10px_rgba(59,130,246,0.2)]">
         Recruitment
       </router-link>
-            <!-- Novo Link de Gerenciamento -->
+      <!-- Novo Link de Gerenciamento -->
       <router-link to="/management" class="hover:text-blue-400 transition duration-300 flex items-center gap-2">
         <i class="fas fa-crown"></i> Management
       </router-link>
@@ -44,6 +47,9 @@ const mobileMenu = ref(false);
         <!-- Links traduzidos para o inglês -->
         <router-link @click="mobileMenu = false" to="/" class="hover:text-blue-400 transition">Home</router-link>
         <router-link @click="mobileMenu = false" to="/guia" class="hover:text-blue-400 transition">Academy (Guide)</router-link>
+        <router-link @click="mobileMenu = false" to="/eventos" class="hover:text-blue-400 transition text-amber-400 flex items-center gap-2">
+          <i class="fas fa-trophy"></i> Clan Events
+        </router-link>
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#gifts' }" class="hover:text-blue-400 transition">Gifts</router-link>
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#roe' }" class="hover:text-blue-400 transition">RoE</router-link>
         <router-link @click="mobileMenu = false" :to="{ path: '/', hash: '#recrutamento' }" class="hover:text-blue-400 transition">Recruitment</router-link>
