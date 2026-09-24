@@ -18,7 +18,7 @@ const rankFilter = ref('ALL');
 const statusFilter = ref('ALL'); // ALL, COMPLETED, PENDING, ZERO
 const viewMode = ref('table'); // 'table' or 'card'
 const sortBy = ref('score_desc'); // 'score_desc', 'score_asc', 'name', 'rank'
-const hideZeroScores = ref(true); // Oculta pontuação 0 por padrão na lista da página
+const hideZeroScores = ref(true); // Hide zero scores by default in the page list
 
 // Modal states
 const showAddModal = ref(false);
@@ -41,18 +41,50 @@ const isMemberDropdownOpen = ref(false);
 
 // Google Sheets Live Integration States
 const GOOGLE_SHEET_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTttvtKwnytCfRbJFeFOeaYDv7z3jJXbEE3alubUU-NExh02zV4fitXcaYj-XOhUp9tMnkgEMeEs1mz';
-const GID_MEMBROS = '1891678615'; // Aba Membros com lista oficial, patentes e cargos
-const googleSheetCycles = [
-  { id: '1091515050', label: 'Set/Out: Olympus Setembro, DO Outubro (Atual)', isDefault: true },
-  { id: '673947178', label: 'Ago/Set: Olympus Agosto, DO Setembro (Anterior)', isDefault: false },
-];
+const GID_MEMBROS = '1891678615'; // Members tab with the official roster, ranks, and roles
+const googleSheetCycles = ref([
+  { id: '1091515050', label: 'Sep/Oct: September Olympus, DO end September (Current)', isDefault: true },
+  { id: '673947178', label: 'Aug/Sep: August Olympus, September DO (Previous)', isDefault: false },
+]);
 const selectedSheetGid = ref('1091515050');
 const isSyncingSheet = ref(false);
 const lastSyncTime = ref('');
 const sheetSyncError = ref('');
 const sheetSyncStats = ref({ darkOmens: 0, olympus: 0, roster: 0 });
 
-// Sincroniza total de fragmentos com o evento ativo conforme dataEventScores.js
+// Discover published event tabs so new monthly sheets do not require code changes.
+const discoverGoogleSheetCycles = async () => {
+  try {
+    const response = await fetch(`${GOOGLE_SHEET_BASE_URL}/pubhtml`);
+    if (!response.ok) throw new Error(`Could not access spreadsheet tabs (${response.status})`);
+
+    const html = await response.text();
+    const matches = [...html.matchAll(/items\.push\(\{name:\s*"([^"]+)".*?gid:\s*"(\d+)"/g)];
+    const discoveredCycles = matches
+      .map(([, name, gid]) => ({
+        id: gid,
+        label: name,
+        isDefault: false
+      }))
+      .filter((cycle, index, cycles) => cycle.id !== GID_MEMBROS && cycles.findIndex(item => item.id === cycle.id) === index);
+
+    if (discoveredCycles.length > 0) {
+      const currentId = selectedSheetGid.value;
+      const preferredId = discoveredCycles.some(cycle => cycle.id === currentId)
+        ? currentId
+        : discoveredCycles[discoveredCycles.length - 1].id;
+      googleSheetCycles.value = discoveredCycles.map(cycle => ({
+        ...cycle,
+        isDefault: cycle.id === preferredId
+      }));
+      selectedSheetGid.value = preferredId;
+    }
+  } catch (err) {
+    console.warn('Could not discover spreadsheet tabs; using fallback cycles:', err);
+  }
+};
+ 
+// Sync the total fragments with the active event according to dataEventScores.js
 watch(activeEventId, (newId) => {
   const current = defaultEvents.find(e => e.id === newId);
   totalFragmentsToDistribute.value = current?.defaultFragments || 1580;
@@ -63,7 +95,7 @@ const memberForm = ref({
   id: null,
   name: '',
   rank: 'G6',
-  role: 'Membro do Clã',
+  role: 'Clan Member',
   score: 0,
   notes: ''
 });
@@ -94,19 +126,27 @@ const getRankBadgeClass = (rank) => {
   }
 };
 
-// Valida se o nome representa um guerreiro real do clã (descarta números soltos, fórmulas ou cabeçalhos)
+// Validate that a name represents a real clan member (discard loose numbers, formulas, or headers)
 const isValidMemberName = (name) => {
   if (!name || typeof name !== 'string') return false;
   const trimmed = name.trim();
   if (!trimmed) return false;
-  // Deve conter pelo menos uma letra válida
+  // Must contain at least one valid letter
   if (!/[a-zA-Z\u00C0-\u00FF]/.test(trimmed)) return false;
-  // Não pode ser puramente numérico (ex: "60250", "12.475", "0")
+  // Cannot be purely numeric (for example, "60250", "12.475", "0")
   if (/^\d+([.,]\d+)?$/.test(trimmed)) return false;
-  // Não pode ser erro de fórmula do Google Sheets
+  // Reject numeric cells with a currency prefix (for example, "E$ 637.000")
+  const withoutCurrencyPrefix = trimmed
+    .replace(/^[A-Za-z]{1,2}\$\s*/i, '')
+    .replace(/^\$\s*/, '')
+    .replace(/[\s.,]+/g, '');
+  if (/^\d+$/.test(withoutCurrencyPrefix)) return false;
+  // G0 and other rank markers are not member names
+  if (/^G\d?$/i.test(trimmed)) return false;
+  // Cannot be a Google Sheets formula error
   if (/^(#REF!|#DIV\/0!|#N\/A|#VALUE!|#NAME\?)$/i.test(trimmed)) return false;
-  // Não pode ser cabeçalho de coluna
-  if (/^(membro|membros|dark omens|olympus|pontuação|pontuacao|essência|essencia|dragon coins|defesa|guardas|total)$/i.test(trimmed)) return false;
+  // Cannot be a column header
+  if (/^(member|members|membro|membros|dark omens|olympus|score|pontuação|pontuacao|essence|essência|essencia|dragon coins|defense|defesa|guards|guardas|total)$/i.test(trimmed)) return false;
   return true;
 };
 
@@ -162,7 +202,7 @@ const deduplicateMembers = (list) => {
       if (m.rank && m.rank !== 'G' && (!existing.rank || existing.rank === 'G')) {
         existing.rank = m.rank;
       }
-      if (m.role && m.role !== 'Membro do Clã' && (!existing.role || existing.role === 'Membro do Clã')) {
+      if (m.role && m.role !== 'Clan Member' && (!existing.role || existing.role === 'Clan Member')) {
         existing.role = m.role;
       }
 
@@ -224,9 +264,9 @@ const saveData = () => {
 };
 
 const resetToDefaults = async () => {
-  if (confirm('Deseja restaurar e ressincronizar os dados diretamente da planilha do Google Sheets?')) {
+  if (confirm('Do you want to restore and resync the data directly from Google Sheets?')) {
     await syncWithGoogleSheet();
-    showToast('Planilha sincronizada e dados atualizados!');
+    showToast('Spreadsheet synced and data updated!');
   }
 };
 
@@ -254,11 +294,11 @@ const parseScoreValue = (val) => {
   return isNaN(num) ? 0 : Math.round(num);
 };
 
-// Parse numerical fragment value directly from spreadsheet cell (NO CALCULATION NEEDED)
+// Parse the numerical fragment value directly from the spreadsheet cell (NO CALCULATION NEEDED)
 const parseFragmentsValue = (val) => {
   if (val === null || val === undefined) return { value: 0, pending: true };
   const str = String(val).trim();
-  if (!str || str.startsWith('#') || str === '-' || str.toLowerCase() === 'pendente') {
+  if (!str || str.startsWith('#') || str === '-' || str.toLowerCase() === 'pending') {
     return { value: 0, pending: true };
   }
 
@@ -288,7 +328,7 @@ const parseCSVLine = (line) => {
   return cells;
 };
 
-// Match or create member from Google Sheets row (using clanRoster from Membros tab & canonical key)
+// Match or create a member from a Google Sheets row (using the Members tab and canonical key)
 const findOrCreateMemberFromSheet = (rawName) => {
   if (!isValidMemberName(rawName)) return null;
   const trimmed = rawName.trim();
@@ -300,7 +340,7 @@ const findOrCreateMemberFromSheet = (rawName) => {
   let found = members.value.find(m => getCanonicalKey(m.name) === key);
   if (found) return found;
 
-  // 2. Match from clanRoster (imported dynamically from Membros tab gid=1891678615)
+  // 2. Match from clanRoster (imported dynamically from the Members tab, gid=1891678615)
   const rosterEntry = clanRoster.value.find(cm => getCanonicalKey(cm.name) === key);
 
   if (rosterEntry) {
@@ -323,7 +363,7 @@ const findOrCreateMemberFromSheet = (rawName) => {
     id: 'm_' + key,
     name: key === 'ildrilas' ? 'Ildrilas' : trimmed,
     rank: 'G',
-    role: 'Membro do Clã',
+    role: 'Clan Member',
     scores: { dark_omens: 0, olympus: 0, ragnarok: 0, great_hunt: 0, throne: 0 },
     fragments: { dark_omens: 0, olympus: 0, ragnarok: 0, great_hunt: 0, throne: 0 },
     fragmentsPending: { dark_omens: false, olympus: false, ragnarok: false, great_hunt: false, throne: false },
@@ -334,14 +374,15 @@ const findOrCreateMemberFromSheet = (rawName) => {
 };
 
 
-// Sincronizar com a Planilha Publicada do Google Drive (Aba Membros + Aba do Ciclo de Eventos)
+// Sync with the published Google Drive spreadsheet (Members tab + event cycle tab)
 const syncWithGoogleSheet = async (targetGid = null) => {
+  if (!targetGid) await discoverGoogleSheetCycles();
   const gid = targetGid || selectedSheetGid.value;
   isSyncingSheet.value = true;
   sheetSyncError.value = '';
 
   try {
-    // 1. SINCRONIZAR ABA DE MEMBROS (gid=1891678615) - LISTA OFICIAL DO CLÃ COM PATENTES E CARGOS
+    // 1. SYNC THE MEMBERS TAB (gid=1891678615) - OFFICIAL CLAN ROSTER WITH RANKS AND ROLES
     try {
       const membrosUrl = `${GOOGLE_SHEET_BASE_URL}/pub?gid=${GID_MEMBROS}&single=true&output=csv`;
       const membrosRes = await fetch(membrosUrl);
@@ -349,7 +390,7 @@ const syncWithGoogleSheet = async (targetGid = null) => {
         const membrosCsv = await membrosRes.text();
         const membrosLines = membrosCsv.split('\n');
         const parsedRoster = [];
-        let currentRole = 'Membro do Clã';
+        let currentRole = 'Clan Member';
 
         membrosLines.forEach(line => {
           const cells = parseCSVLine(line);
@@ -359,16 +400,16 @@ const syncWithGoogleSheet = async (targetGid = null) => {
 
           const lowerCol1 = col1.toLowerCase();
           if (!col0 && col1) {
-            if (lowerCol1.includes('líder') || lowerCol1.includes('lider')) {
-              currentRole = 'Líder';
-            } else if (lowerCol1.includes('superior') || lowerCol1.includes('liderança')) {
+            if (lowerCol1.includes('leader')) {
+              currentRole = 'Leader';
+            } else if (lowerCol1.includes('superior') || lowerCol1.includes('leadership')) {
               currentRole = 'Superior';
-            } else if (lowerCol1.includes('oficial')) {
-              currentRole = 'Oficial';
-            } else if (lowerCol1.includes('veterano')) {
-              currentRole = 'Veterano';
-            } else if (lowerCol1.includes('soldado')) {
-              currentRole = 'Soldado';
+            } else if (lowerCol1.includes('officer')) {
+              currentRole = 'Officer';
+            } else if (lowerCol1.includes('veteran')) {
+              currentRole = 'Veteran';
+            } else if (lowerCol1.includes('soldier')) {
+              currentRole = 'Soldier';
             }
             return;
           }
@@ -385,12 +426,12 @@ const syncWithGoogleSheet = async (targetGid = null) => {
 
         if (parsedRoster.length > 0) {
           clanRoster.value = deduplicateMembers(parsedRoster);
-          // Atualiza dados de patente/cargo para os membros existentes no estado
+          // Update rank and role data for existing members in state
           parsedRoster.forEach(r => {
             const rKey = getCanonicalKey(r.name);
             let existing = members.value.find(m => getCanonicalKey(m.name) === rKey);
             if (existing) {
-              existing.name = r.name; // Preserva grafia oficial
+              existing.name = r.name; // Preserve official spelling
               existing.rank = r.rank;
               existing.role = r.role;
             } else {
@@ -409,14 +450,14 @@ const syncWithGoogleSheet = async (targetGid = null) => {
         }
       }
     } catch (rosterErr) {
-      console.warn('Aviso: Não foi possível sincronizar aba de Membros, prosseguindo com evento:', rosterErr);
+      console.warn('Warning: Could not sync the Members tab; continuing with the event:', rosterErr);
     }
 
-    // 2. SINCRONIZAR ABA DO CICLO DE EVENTOS (Dark Omens & Olympus com fragmentos)
+    // 2. SYNC THE EVENT CYCLE TAB (Dark Omens and Olympus with fragments)
     const url = `${GOOGLE_SHEET_BASE_URL}/pub?gid=${gid}&single=true&output=csv`;
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Erro ao acessar planilha (${response.status})`);
+      throw new Error(`Could not access spreadsheet (${response.status})`);
     }
     const csv = await response.text();
     const lines = csv.split('\n');
@@ -424,11 +465,12 @@ const syncWithGoogleSheet = async (targetGid = null) => {
     let countDarkOmens = 0;
     let countOlympus = 0;
 
-    // Detectar colunas da aba de eventos dinamicamente
+    // Detect event tab columns dynamically
     let doScoreCol = 0, doMemberCol = 1, doFragCol = 2;
     let olyScoreCol = 3, olyMemberCol = 4, olyFragCol = 5;
+    let ragnarokMemberCol = -1, ragnarokChestCol = -1;
 
-    // Varre as primeiras 3 linhas para achar onde estão as colunas de "Membros"
+    // Scan the first 3 rows to find the "Members" columns
     for (let h = 0; h < Math.min(3, lines.length); h++) {
       const hCells = parseCSVLine(lines[h]);
       const memberCols = [];
@@ -449,7 +491,25 @@ const syncWithGoogleSheet = async (targetGid = null) => {
       }
     }
 
-    // Ler linha de cabeçalhos de totais (Row 1)
+    // Ragnarök exists only in the current cycle and uses the Chests column, not scores.
+    if (lines.length > 1) {
+      const titleCells = parseCSVLine(lines[0]);
+      const ragnarokStart = titleCells.findIndex(c => c.toLowerCase().trim().includes('ragnarok'));
+      if (ragnarokStart !== -1) {
+        const headerCells = parseCSVLine(lines[1]);
+        ragnarokMemberCol = ragnarokStart;
+        ragnarokChestCol = headerCells.findIndex((c, idx) => idx >= ragnarokStart && c.toLowerCase().trim().includes('baú'));
+      }
+    }
+
+    // Clear Ragnarök when the selected tab does not publish a Ragnarök section.
+    if (ragnarokMemberCol === -1 || ragnarokChestCol === -1) {
+      members.value.forEach(member => {
+        if (member.scores) member.scores.ragnarok = 0;
+      });
+    }
+
+    // Read the totals header row (Row 1)
     if (lines.length > 1) {
       const row1Cells = parseCSVLine(lines[1]);
       row1Cells.forEach((c, idx) => {
@@ -511,6 +571,19 @@ const syncWithGoogleSheet = async (targetGid = null) => {
           countOlympus++;
         }
       }
+
+      // Ragnarök: count chests when the selected tab publishes the section.
+      if (ragnarokMemberCol !== -1 && ragnarokChestCol !== -1) {
+        const ragnarokMemberRaw = cells[ragnarokMemberCol] || '';
+        const ragnarokChestRaw = cells[ragnarokChestCol] || '';
+        if (ragnarokMemberRaw && isValidMemberName(ragnarokMemberRaw)) {
+          const member = findOrCreateMemberFromSheet(ragnarokMemberRaw);
+          if (member) {
+            if (!member.scores) member.scores = {};
+            member.scores.ragnarok = parseScoreValue(ragnarokChestRaw);
+          }
+        }
+      }
     }
 
     members.value = deduplicateMembers(members.value);
@@ -519,11 +592,11 @@ const syncWithGoogleSheet = async (targetGid = null) => {
     const now = new Date();
     lastSyncTime.value = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     sheetSyncStats.value = { darkOmens: countDarkOmens, olympus: countOlympus, roster: clanRoster.value.length };
-    showToast(`Google Sheets sincronizado! ${countDarkOmens} em Dark Omens e ${countOlympus} em Olympus.`);
+    showToast(`Google Sheets synced! ${countDarkOmens} in Dark Omens and ${countOlympus} in Olympus.`);
   } catch (err) {
-    console.error('Falha ao sincronizar com Google Sheets:', err);
-    sheetSyncError.value = 'Não foi possível sincronizar com o Google Sheets no momento. Usando dados locais.';
-    showToast('Falha na sincronização com a planilha.');
+    console.error('Google Sheets sync failed:', err);
+    sheetSyncError.value = 'Google Sheets could not be synced right now. Using local data.';
+    showToast('Spreadsheet sync failed.');
   } finally {
     isSyncingSheet.value = false;
   }
@@ -533,7 +606,7 @@ onMounted(async () => {
   localStorage.removeItem(LOCAL_STORAGE_EVENTS_KEY);
   loadData();
   saveData();
-  // Auto-sync com a planilha do Google Drive em segundo plano
+  // Sync the newest published tab in the background.
   await syncWithGoogleSheet();
 });
 
@@ -543,6 +616,15 @@ onMounted(async () => {
 const activeEvent = computed(() => {
   return defaultEvents.find(e => e.id === activeEventId.value) || defaultEvents[0] || {};
 });
+
+const isRagnarokEvent = computed(() => activeEventId.value === 'ragnarok');
+
+const getRagnarokStatus = (chests) => {
+  if (chests === 0) return 'Ruim';
+  if (chests === 5) return 'Ideal';
+  if (chests > 5) return 'Excelente';
+  return 'Abaixo do ideal';
+};
 
 // Total Clan Score for active event
 const totalClanScore = computed(() => {
@@ -556,7 +638,6 @@ const totalClanScore = computed(() => {
 // Formatted Members list for active event with Direct Fragment Display from Spreadsheet (NO formula recalculation!)
 const processedMembers = computed(() => {
   const currentEvtId = activeEventId.value;
-  const evtMinTarget = activeEvent.value.minTarget || 50000;
   const totScore = totalClanScore.value;
 
   return members.value.filter(m => isValidMemberName(m && m.name)).map(m => {
@@ -582,18 +663,19 @@ const processedMembers = computed(() => {
       shareRatio: shareRatio,
       sharePctStr: sharePctStr,
       fragmentsAllocated: fragmentsAllocated,
-      fragmentsPending: isPending
+      fragmentsPending: isPending,
+      eventStatus: activeEvent.value.isChestEvent ? getRagnarokStatus(rawScore) : ''
     };
   });
 });
 
 
-// Membros com pontuação (> 0) no evento ativo
+// Members with a score greater than 0 in the active event
 const activeScorers = computed(() => {
   return processedMembers.value.filter(m => m.currentScore > 0);
 });
 
-// Quantidade de membros com pontuação 0 no evento ativo
+// Number of members with a score of 0 in the active event
 const zeroScorersCount = computed(() => {
   return processedMembers.value.filter(m => m.currentScore === 0).length;
 });
@@ -602,8 +684,8 @@ const zeroScorersCount = computed(() => {
 const filteredMembers = computed(() => {
   let list = [...processedMembers.value];
 
-  // Mostra apenas quem teve algum valor em pontuação (> 0)
-  if (hideZeroScores.value && statusFilter.value !== 'ZERO') {
+  // Show only members with a score greater than 0
+  if (hideZeroScores.value && statusFilter.value !== 'ZERO' && !isRagnarokEvent.value) {
     list = list.filter(m => m.currentScore > 0);
   }
 
@@ -691,13 +773,13 @@ const showToast = (msg) => {
 
 // --- ACTIONS & MODAL HANDLERS ---
 
-// Helper to check if a member is in the roster from Membros tab
+// Helper to check if a member is in the roster from the Members tab
 const isMemberFromOfficialList = (name) => {
   if (!name) return false;
   return clanRoster.value.some(m => m.name.toLowerCase().trim() === name.toLowerCase().trim());
 };
 
-// Full list of available members for the selector: merges clanRoster (Membros tab) with any custom members in state
+// Full list of available members for the selector: merges clanRoster (Members tab) with custom members in state
 const selectorMemberList = computed(() => {
   const currentEvtId = activeEventId.value;
   const currentMembersMap = new Map();
@@ -708,7 +790,7 @@ const selectorMemberList = computed(() => {
   const list = [];
   const addedNames = new Set();
 
-  // 1. Members from clanRoster (Membros tab)
+  // 1. Members from clanRoster (Members tab)
   clanRoster.value.forEach(cm => {
     const lower = cm.name.toLowerCase().trim();
     addedNames.add(lower);
@@ -738,7 +820,7 @@ const selectorMemberList = computed(() => {
         id: m.id,
         name: m.name,
         rank: m.rank,
-        role: m.role || 'Membro do Clã',
+        role: m.role || 'Clan Member',
         isOfficial: false,
         existingScore: scoreVal,
         existingMember: m
@@ -775,7 +857,7 @@ const selectMemberFromList = (m) => {
     id: existing ? existing.id : m.id,
     name: m.name,
     rank: existing?.rank || m.rank || 'G6',
-    role: existing?.role || m.role || 'Membro do Clã',
+    role: existing?.role || m.role || 'Clan Member',
     score: currentScore,
     notes: existing?.notes || ''
   };
@@ -838,7 +920,7 @@ const openAddMemberModal = (member = null) => {
       id: member.id,
       name: member.name,
       rank: member.rank || 'G6',
-      role: member.role || 'Membro do Clã',
+      role: member.role || 'Clan Member',
       score: member.currentScore !== undefined ? member.currentScore : (member.scores && member.scores[activeEventId.value] ? member.scores[activeEventId.value] : 0),
       notes: member.notes || ''
     };
@@ -849,7 +931,7 @@ const openAddMemberModal = (member = null) => {
       id: null,
       name: '',
       rank: 'G6',
-      role: 'Membro do Clã',
+      role: 'Clan Member',
       score: 0,
       notes: ''
     };
@@ -860,7 +942,7 @@ const openAddMemberModal = (member = null) => {
 const saveMemberForm = () => {
   const nameTrimmed = memberForm.value.name.trim();
   if (!nameTrimmed) {
-    alert('Por favor, informe ou selecione o nome do membro do clã.');
+    alert('Please enter or select the clan member name.');
     return;
   }
 
@@ -888,7 +970,7 @@ const saveMemberForm = () => {
     if (!members.value[existingIdx].scores) members.value[existingIdx].scores = {};
     members.value[existingIdx].scores[currentEvtId] = scoreVal;
 
-    showToast(`Pontuação de ${nameTrimmed} atualizada (${formatNumber(scoreVal)} pts)!`);
+    showToast(`${nameTrimmed}'s score updated (${formatNumber(scoreVal)} pts)!`);
   } else {
     // Create new member
     const newId = memberForm.value.id || ('m_' + Date.now());
@@ -896,14 +978,14 @@ const saveMemberForm = () => {
       id: newId,
       name: nameTrimmed,
       rank: memberForm.value.rank,
-      role: memberForm.value.role.trim() || 'Membro do Clã',
+      role: memberForm.value.role.trim() || 'Clan Member',
       scores: {
         [currentEvtId]: scoreVal
       },
       notes: memberForm.value.notes.trim()
     };
     members.value.unshift(newMember);
-    showToast(`Membro ${nameTrimmed} adicionado ao clã com sucesso!`);
+    showToast(`Member ${nameTrimmed} added to the clan successfully!`);
   }
 
   saveData();
@@ -911,14 +993,14 @@ const saveMemberForm = () => {
 };
 
 const deleteMember = (member) => {
-  if (confirm(`Deseja remover ${member.name} da lista de pontuações do clã?`)) {
+  if (confirm(`Remove ${member.name} from the clan score list?`)) {
     members.value = members.value.filter(m => m.id !== member.id);
     saveData();
-    showToast(`Membro ${member.name} removido.`);
+    showToast(`Member ${member.name} removed.`);
   }
 };
 
-// Batch Import Parser - Supports both "Pontuação Nome" (ex: 262375 Foli) and "Nome Pontuação" (ex: Foli 262375)
+// Batch import parser - Supports both "Score Name" and "Name Score"
 const parseBatchText = () => {
   const text = batchInputText.value.trim();
   if (!text) {
@@ -939,10 +1021,10 @@ const parseBatchText = () => {
     let rawScoreStr = '';
     let name = '';
 
-    // Formato 1: "<Pontuação> <Nome>" (ex: "262375 Foli", "155.650 Elanin", "26.2M - Foli")
+    // Format 1: "<Score> <Name>" (for example, "262375 Foli", "155.650 Elanin", "26.2M - Foli")
     const matchScoreFirst = trimmed.match(/^([0-9\.,kKmMbB]+)\s*[:=\-\t\s]+\s*([A-Za-z0-9_\[\]\s\-\.\'\"]+)$/);
 
-    // Formato 2: "<Nome> <Pontuação>" (ex: "Foli 262375", "Elanin: 155650")
+    // Format 2: "<Name> <Score>" (for example, "Foli 262375", "Elanin: 155650")
     const matchNameFirst = trimmed.match(/^([A-Za-z0-9_\[\]\s\-\.\'\"]+?)\s*[:=\-\t\s]+\s*([0-9\.,kKmMbB]+)$/);
 
     if (matchScoreFirst) {
@@ -968,10 +1050,10 @@ const parseBatchText = () => {
         lowerScore = lowerScore.replace('k', '');
       }
 
-      // Limpeza do número
+      // Clean the number
       lowerScore = lowerScore.replace(/\s+/g, '');
 
-      // Se contiver pontos ou vírgulas (ex: 262.375 ou 1.500.000 ou 12,5)
+      // If it contains dots or commas (for example, 262.375, 1.500.000, or 12,5)
       if (lowerScore.includes('.') || lowerScore.includes(',')) {
         if (/^\d{1,3}([\.,]\d{3})+$/.test(lowerScore)) {
           lowerScore = lowerScore.replace(/[\.,]/g, '');
@@ -993,7 +1075,7 @@ const parseBatchText = () => {
 
 const applyBatchImport = () => {
   if (batchParsePreview.value.length === 0) {
-    alert('Nenhuma pontuação válida detectada no texto. Formato recomendado: 262375 Foli ou Foli 262375');
+    alert('No valid score detected in the text. Recommended format: 262375 Foli or Foli 262375');
     return;
   }
 
@@ -1012,18 +1094,18 @@ const applyBatchImport = () => {
         id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         name: item.name,
         rank: 'G',
-        role: 'Membro',
+        role: 'Member',
         scores: {
           [currentEvtId]: item.score
         },
-        notes: 'Importado em lote'
+        notes: 'Batch import'
       });
       countAdded++;
     }
   });
 
   saveData();
-  showToast(`Importação concluída! ${countUpdated} atualizados, ${countAdded} novos membros adicionados.`);
+  showToast(`Import complete! ${countUpdated} updated, ${countAdded} new members added.`);
   showBatchModal.value = false;
   batchInputText.value = '';
   batchParsePreview.value = [];
@@ -1035,26 +1117,26 @@ const formattedChatExport = computed(() => {
   const target = currentEvt.minTarget || 10000000;
   const sorted = [...processedMembers.value].sort((a, b) => b.currentScore - a.currentScore);
 
-  let text = `[WLF] Wolf - Placar de Evento: ${currentEvt.name}\n`;
-  text += `Meta do Clã: ${formatShortNumber(target)} ${currentEvt.unitName || 'pts'}\n`;
-  text += `Total do Clã: ${formatShortNumber(totalClanScore.value)} (${completedCount.value}/${processedMembers.value.length} metas cumpridas)\n\n`;
-  text += `--- TOP RANKING DO CLÃ ---\n`;
+  let text = `[WLF] Wolf - Event Scoreboard: ${currentEvt.name}\n`;
+  text += `Clan Target: ${formatShortNumber(target)} ${currentEvt.unitName || 'pts'}\n`;
+  text += `Clan Total: ${formatShortNumber(totalClanScore.value)} (${completedCount.value}/${processedMembers.value.length} targets completed)\n\n`;
+  text += `--- CLAN TOP RANKING ---\n`;
 
   const scorersOnly = sorted.filter(m => m.currentScore > 0);
   scorersOnly.forEach((m, idx) => {
     const rankNum = idx + 1;
-    const badge = m.isCompleted ? '[META OK]' : '[PENDENTE]';
+    const badge = m.isCompleted ? '[TARGET OK]' : '[PENDING]';
     text += `${rankNum}. ${m.name} (${m.rank}) - ${formatShortNumber(m.currentScore)} ${badge}\n`;
   });
 
-  text += `\nAforça da alcatéia é a união de todos! Ahooo!`;
+  text += `\nThe pack's strength is in unity! Ahooo!`;
   return text;
 });
 
 const copyChatExport = async () => {
   try {
     await navigator.clipboard.writeText(formattedChatExport.value);
-    showToast('Placar copiado para a área de transferência!');
+    showToast('Scoreboard copied to the clipboard!');
   } catch (err) {
     // Fallback
     const textArea = document.createElement('textarea');
@@ -1063,20 +1145,20 @@ const copyChatExport = async () => {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    showToast('Placar copiado para a área de transferência!');
+    showToast('Scoreboard copied to the clipboard!');
   }
 };
 
 // Export Full Roster of Members
 const formattedRosterExport = computed(() => {
   const listToExport = clanRoster.value.length > 0 ? clanRoster.value : members.value;
-  return listToExport.map((m, idx) => `${idx + 1}. ${m.name} (${m.rank}) - ${m.role || 'Membro'}`).join('\n');
+  return listToExport.map((m, idx) => `${idx + 1}. ${m.name} (${m.rank}) - ${m.role || 'Member'}`).join('\n');
 });
 
 const copyRosterText = async () => {
   try {
     await navigator.clipboard.writeText(formattedRosterExport.value);
-    showToast('Lista oficial de membros copiada!');
+    showToast('Official member list copied!');
   } catch (err) {
     const textArea = document.createElement('textarea');
     textArea.value = formattedRosterExport.value;
@@ -1084,7 +1166,7 @@ const copyRosterText = async () => {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    showToast('Lista oficial de membros copiada!');
+    showToast('Official member list copied!');
   }
 };
 
@@ -1094,11 +1176,11 @@ const formattedFragmentsExport = computed(() => {
   const totalFrags = Number(totalFragmentsToDistribute.value || 0);
   const sorted = [...processedMembers.value].sort((a, b) => (b.fragmentsAllocated - a.fragmentsAllocated) || (b.currentScore - a.currentScore));
 
-  let text = `[WLF] Wolf - Distribuição de Fragmentos (${currentEvt.name})\n`;
-  text += `Total de Fragmentos: ${formatNumber(totalFrags)}\n`;
-  text += `Total Distribuído: ${formatNumber(totalDistributedFragments.value)} frag\n`;
-  text += `Fonte: Planilha Oficial do Clã\n\n`;
-  text += `--- RECOMPENSAS POR GUERREIRO ---\n`;
+  let text = `[WLF] Wolf - Fragment Distribution (${currentEvt.name})\n`;
+  text += `Total Fragments: ${formatNumber(totalFrags)}\n`;
+  text += `Total Distributed: ${formatNumber(totalDistributedFragments.value)} frag\n`;
+  text += `Source: Official Clan Spreadsheet\n\n`;
+  text += `--- REWARDS BY WARRIOR ---\n`;
 
   let rankNum = 1;
   sorted.forEach((m) => {
@@ -1108,14 +1190,14 @@ const formattedFragmentsExport = computed(() => {
     }
   });
 
-  text += `\nA força da alcatéia é a união de todos! Ahooo!`;
+  text += `\nThe pack's strength is in unity! Ahooo!`;
   return text;
 });
 
 const copyFragmentsText = async () => {
   try {
     await navigator.clipboard.writeText(formattedFragmentsExport.value);
-    showToast('Distribuição de fragmentos copiada!');
+    showToast('Fragment distribution copied!');
   } catch (err) {
     const textArea = document.createElement('textarea');
     textArea.value = formattedFragmentsExport.value;
@@ -1123,7 +1205,7 @@ const copyFragmentsText = async () => {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    showToast('Distribuição de fragmentos copiada!');
+    showToast('Fragment distribution copied!');
   }
 };
 </script>
@@ -1147,10 +1229,10 @@ const copyFragmentsText = async () => {
           <i class="fas fa-trophy text-3xl"></i>
         </div>
         <h1 class="text-3xl md:text-5xl font-medieval text-slate-100 mb-3 tracking-wider uppercase drop-shadow-md">
-          Portal de <span class="text-blue-400 font-light">Eventos do Clã</span>
+          <span class="text-blue-400 font-light">Clan Events</span> Portal
         </h1>
         <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto italic">
-          Acompanhamento individual e coletivo da pontuação dos guerreiros da alcatéia em <strong class="text-slate-200">Olímpia</strong>, <strong class="text-slate-200">Sinais Sombrios</strong>, <strong class="text-slate-200">Ragnarök</strong> e torneios do Total Battle.
+          Individual and collective tracking of the pack's warriors in <strong class="text-slate-200">Olympus</strong>, <strong class="text-slate-200">Dark Omens</strong>, <strong class="text-slate-200">Ragnarök</strong>, and Total Battle tournaments.
         </p>
       </div>
     </header>
@@ -1170,15 +1252,15 @@ const copyFragmentsText = async () => {
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <h3 class="text-sm font-bold text-slate-100 uppercase tracking-wider">
-                  Sincronização em Tempo Real (Google Sheets)
+                  Real-Time Sync (Google Sheets)
                 </h3>
                 <span class="text-[10px] font-bold uppercase bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded shadow-sm">
-                  Nuvem Conectada
+                  Cloud Connected
                 </span>
               </div>
               <p class="text-xs text-slate-400 mt-1">
-                Planilha: <strong class="text-slate-200">Shadow Points</strong>
-                <span v-if="lastSyncTime" class="text-slate-500 ml-1.5">• Sincronizado às {{ lastSyncTime }}</span>
+                Spreadsheet: <strong class="text-slate-200">Shadow Points</strong>
+                <span v-if="lastSyncTime" class="text-slate-500 ml-1.5">• Synced at {{ lastSyncTime }}</span>
                 <span v-if="sheetSyncStats.darkOmens || sheetSyncStats.olympus" class="text-emerald-400/90 ml-1.5 hidden sm:inline">
                   ({{ sheetSyncStats.darkOmens }} Dark Omens, {{ sheetSyncStats.olympus }} Olympus)
                 </span>
@@ -1189,7 +1271,7 @@ const copyFragmentsText = async () => {
           <!-- Controls: Cycle Dropdown, Sync Button & Sheet Link -->
           <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
             
-            <!-- Seletor de Ciclo / Mês -->
+            <!-- Cycle / month selector -->
             <select 
               v-model="selectedSheetGid" 
               @change="syncWithGoogleSheet()" 
@@ -1200,26 +1282,26 @@ const copyFragmentsText = async () => {
               </option>
             </select>
 
-            <!-- Botão Sincronizar Agora -->
+            <!-- Sync now button -->
             <button 
               @click="syncWithGoogleSheet()" 
               :disabled="isSyncingSheet" 
               class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_12px_rgba(16,185,129,0.25)] shrink-0"
             >
               <i class="fas fa-rotate" :class="{ 'fa-spin text-emerald-200': isSyncingSheet }"></i>
-              <span>{{ isSyncingSheet ? 'Sincronizando...' : 'Sincronizar Planilha' }}</span>
+              <span>{{ isSyncingSheet ? 'Syncing...' : 'Sync Spreadsheet' }}</span>
             </button>
 
-            <!-- Link Externo para a Planilha -->
+            <!-- External spreadsheet link -->
             <a 
               href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTttvtKwnytCfRbJFeFOeaYDv7z3jJXbEE3alubUU-NExh02zV4fitXcaYj-XOhUp9tMnkgEMeEs1mz/pubhtml" 
               target="_blank" 
               rel="noopener noreferrer" 
               class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg transition border border-slate-700 flex items-center gap-1.5 shrink-0"
-              title="Abrir Planilha Oficial no Google Drive"
+              title="Open the official spreadsheet in Google Drive"
             >
               <i class="fas fa-arrow-up-right-from-square text-[10px]"></i>
-              <span class="hidden lg:inline">Ver Planilha</span>
+              <span class="hidden lg:inline">View Spreadsheet</span>
             </a>
 
           </div>
@@ -1231,10 +1313,10 @@ const copyFragmentsText = async () => {
       <section class="bg-[#0b101a]/90 border border-slate-800 rounded-xl p-3 md:p-4 backdrop-blur-md shadow-xl">
         <div class="flex items-center justify-between mb-3 px-2">
           <span class="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <i class="fas fa-calendar-star text-blue-400"></i> Selecionar Evento Ativo
+            <i class="fas fa-calendar-star text-blue-400"></i> Select Active Event
           </span>
           <span class="text-xs text-slate-500">
-            Evento Selecionado: <strong class="text-blue-400">{{ activeEvent.name }}</strong>
+            Selected Event: <strong class="text-blue-400">{{ activeEvent.name }}</strong>
           </span>
         </div>
 
@@ -1255,7 +1337,7 @@ const copyFragmentsText = async () => {
               {{ evt.name.split(' (')[0] }}
             </span>
             <span class="text-[10px] text-slate-500 mt-1">
-              Meta: {{ formatShortNumber(evt.minTarget) }}
+              Target: {{ formatShortNumber(evt.minTarget) }}
             </span>
           </button>
         </div>
@@ -1270,20 +1352,20 @@ const copyFragmentsText = async () => {
             <i class="fas fa-chart-line"></i>
           </div>
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pontuação Total</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ activeEvent.metricLabel || 'Total Score' }}</p>
             <p class="text-2xl font-bold text-slate-100 tracking-tight">{{ formatShortNumber(totalClanScore) }}</p>
             <p class="text-[11px] text-slate-500">{{ formatNumber(totalClanScore) }} {{ activeEvent.unitName }}</p>
           </div>
         </div>
 
-        <!-- Meta Cumprida -->
+        <!-- Target Reached -->
         <div class="bg-[#0b101a]/80 border border-slate-700/50 p-5 rounded-xl flex items-center gap-4 relative overflow-hidden shadow-lg">
           <div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl shrink-0">
             <i class="fas fa-check-circle"></i>
           </div>
           <div class="flex-grow">
             <div class="flex justify-between items-baseline">
-              <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Metas Atingidas</p>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Targets Reached</p>
               <span class="text-xs font-bold text-emerald-400">{{ completedPercentage }}%</span>
             </div>
             <p class="text-2xl font-bold text-slate-100 tracking-tight">{{ completedCount }} / {{ processedMembers.length }}</p>
@@ -1293,15 +1375,15 @@ const copyFragmentsText = async () => {
           </div>
         </div>
 
-        <!-- Média do Clã -->
+        <!-- Clan Average -->
         <div class="bg-[#0b101a]/80 border border-slate-700/50 p-5 rounded-xl flex items-center gap-4 relative overflow-hidden shadow-lg">
           <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl shrink-0">
             <i class="fas fa-calculator"></i>
           </div>
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Média por Membro</p>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Average per Member</p>
             <p class="text-2xl font-bold text-slate-100 tracking-tight">{{ formatShortNumber(averageMemberScore) }}</p>
-            <p class="text-[11px] text-slate-500">Média individual atual</p>
+            <p class="text-[11px] text-slate-500">Current individual average</p>
           </div>
         </div>
 
@@ -1312,9 +1394,9 @@ const copyFragmentsText = async () => {
           </div>
           <div class="overflow-hidden">
             <p class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-              <span>MVP do Evento</span> 🥇
+              <span>Event MVP</span> 🥇
             </p>
-            <p class="text-xl font-bold text-slate-100 truncate">{{ topScorer ? topScorer.name : 'Nenhum' }}</p>
+            <p class="text-xl font-bold text-slate-100 truncate">{{ topScorer ? topScorer.name : 'None' }}</p>
             <p class="text-xs text-amber-300 font-semibold truncate">
               {{ topScorer ? formatShortNumber(topScorer.currentScore) + ' ' + (activeEvent.unitName || 'pts') : '-' }}
             </p>
@@ -1330,12 +1412,16 @@ const copyFragmentsText = async () => {
             <i :class="['fas', activeEvent.icon, 'text-3xl text-blue-400']"></i>
             <div>
               <h2 class="text-xl font-bold text-slate-100 uppercase tracking-wider">{{ activeEvent.name }}</h2>
-              <p class="text-xs text-slate-400">Meta individual mínima exigida: <span class="text-blue-400 font-bold">{{ formatNumber(activeEvent.minTarget) }} {{ activeEvent.unitName }}</span></p>
+              <p class="text-xs text-slate-400">
+                <span v-if="isRagnarokEvent">Ideal amount: </span>
+                <span v-else>Minimum individual target: </span>
+                <span class="text-blue-400 font-bold">{{ formatNumber(activeEvent.minTarget) }} {{ activeEvent.unitName }}</span>
+              </p>
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button @click="showExportModal = true" class="bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600 text-blue-300 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.15)]">
-              <i class="fas fa-share-nodes"></i> Exportar Placar para Chat
+              <i class="fas fa-share-nodes"></i> Export Scoreboard to Chat
             </button>
           </div>
         </div>
@@ -1344,14 +1430,14 @@ const copyFragmentsText = async () => {
           {{ activeEvent.desc }}
         </p>
 
-        <!-- Cronograma Diário de Missões -->
+        <!-- Daily mission schedule -->
         <div v-if="activeEvent.dailyMissions && activeEvent.dailyMissions.length" class="mb-4 bg-[#0a0f1a]/90 border border-amber-500/30 rounded-xl p-4 shadow-inner">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-              <i class="fas fa-calendar-week text-amber-400"></i> Cronograma Diário de Missões ({{ activeEvent.dailyMissions.reduce((acc, m) => acc + (parseInt(m.count) || 0), 0) }} Missões Totais):
+              <i class="fas fa-calendar-week text-amber-400"></i> Daily Mission Schedule ({{ activeEvent.dailyMissions.reduce((acc, m) => acc + (parseInt(m.count) || 0), 0) }} Total Missions):
             </h4>
             <span class="text-[11px] text-slate-400 font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-              {{ activeEvent.dailyMissions.length }} Dias de Evento
+              {{ activeEvent.dailyMissions.length }} Event Days
             </span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -1369,7 +1455,7 @@ const copyFragmentsText = async () => {
                 <span class="text-[11px] font-bold text-amber-400 font-mono flex items-center gap-1">
                   <i class="fas fa-check-double text-[9px]"></i> {{ dm.count }}
                 </span>
-                <span class="text-[9px] uppercase font-bold text-slate-500">Obrigatório</span>
+                <span class="text-[9px] uppercase font-bold text-slate-500">Mandatory</span>
               </div>
             </div>
           </div>
@@ -1377,7 +1463,7 @@ const copyFragmentsText = async () => {
 
         <div v-if="activeEvent.tips && activeEvent.tips.length" class="bg-slate-900/60 border border-slate-800 rounded-lg p-4">
           <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2 flex items-center gap-2">
-            <i class="fas fa-lightbulb"></i> Diretrizes Táticas da Alcatéia:
+            <i class="fas fa-lightbulb"></i> Pack Tactical Guidelines:
           </h4>
           <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-slate-300">
             <li v-for="(tip, idx) in activeEvent.tips" :key="idx" class="flex items-start gap-2">
@@ -1398,7 +1484,7 @@ const copyFragmentsText = async () => {
             <input 
               v-model="searchQuery" 
               type="text" 
-              placeholder="Buscar membro por nome ou notas..." 
+              placeholder="Search member by name or notes..."
               class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 focus:border-blue-500 outline-none transition"
             >
           </div>
@@ -1408,7 +1494,7 @@ const copyFragmentsText = async () => {
             
             <!-- Filter by Classification (G - G9) -->
             <select v-model="rankFilter" class="bg-[#0a0f1a] border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-blue-500 outline-none">
-              <option value="ALL">Todas as Classificações (G - G9)</option>
+              <option value="ALL">All Ranks (G - G9)</option>
               <option value="G9">G9 (Guarda 9)</option>
               <option value="G8">G8 (Guarda 8)</option>
               <option value="G7">G7 (Guarda 7)</option>
@@ -1423,20 +1509,20 @@ const copyFragmentsText = async () => {
             <!-- Filter by Status -->
             <select v-model="statusFilter" class="bg-[#0a0f1a] border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-blue-500 outline-none">
               <option value="ALL">Todos os Status</option>
-              <option value="COMPLETED">Meta Atingida (≥ 100%)</option>
-              <option value="PENDING">Pendente (Pontuou < 100%)</option>
-              <option value="ZERO">Sem Pontuação (Pontuação = 0)</option>
+              <option value="COMPLETED">Target Reached (≥ 100%)</option>
+              <option value="PENDING">Pending (Score < 100%)</option>
+              <option value="ZERO">No Score (Score = 0)</option>
             </select>
 
             <!-- Sort By -->
             <select v-model="sortBy" class="bg-[#0a0f1a] border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-blue-500 outline-none">
-              <option value="score_desc">Maior Pontuação</option>
-              <option value="score_asc">Menor Pontuação</option>
-              <option value="rank">Por Classificação (G9 -> G)</option>
-              <option value="name">Nome (A-Z)</option>
+              <option value="score_desc">Highest Score</option>
+              <option value="score_asc">Lowest Score</option>
+              <option value="rank">By Rank (G9 -> G)</option>
+              <option value="name">Name (A-Z)</option>
             </select>
 
-            <!-- Toggle Ocultar Pontuação 0 -->
+            <!-- Hide zero score toggle -->
             <button 
               @click="hideZeroScores = !hideZeroScores" 
               type="button"
@@ -1444,10 +1530,10 @@ const copyFragmentsText = async () => {
               :class="hideZeroScores 
                 ? 'bg-blue-600/20 border-blue-500/60 text-blue-300 shadow-[0_0_8px_rgba(59,130,246,0.2)]' 
                 : 'bg-[#0a0f1a] border-slate-700 text-slate-400 hover:text-slate-200'"
-              :title="hideZeroScores ? 'Clique para exibir também membros com pontuação 0' : 'Clique para ocultar membros com pontuação 0'"
+              :title="hideZeroScores ? 'Click to also show members with zero score' : 'Click to hide members with zero score'"
             >
               <i :class="hideZeroScores ? 'fas fa-eye-slash text-blue-400' : 'fas fa-eye text-slate-500'"></i>
-              <span>{{ hideZeroScores ? 'Apenas com Pontuação' : 'Exibir Todos (incl. 0)' }}</span>
+              <span>{{ hideZeroScores ? 'Scored Only' : 'Show All (including 0)' }}</span>
             </button>
 
             <!-- View Mode Switch -->
@@ -1477,21 +1563,21 @@ const copyFragmentsText = async () => {
         <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
           <div class="flex flex-wrap items-center gap-2">
             <button @click="openAddMemberModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-              <i class="fas fa-user-plus"></i> + Adicionar Pontuação / Membro
+              <i class="fas fa-user-plus"></i> + Add Score / Member
             </button>
             <button @click="showBatchModal = true" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2">
-              <i class="fas fa-file-import"></i> Importação em Lote
+              <i class="fas fa-file-import"></i> Batch Import
             </button>
             <button @click="showRosterModal = true" class="bg-[#0a0f1a] border border-blue-500/40 text-blue-300 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.15)]">
-              <i class="fas fa-users"></i> Membros ({{ clanRoster.length || members.length }})
+              <i class="fas fa-users"></i> Members ({{ clanRoster.length || members.length }})
             </button>
-            <button @click="showFragmentsModal = true" class="bg-amber-600/20 border border-amber-500/50 text-amber-300 hover:bg-amber-600 hover:text-slate-900 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
-              <i class="fas fa-gem"></i> Fragmentos da Planilha
+            <button v-if="!isRagnarokEvent" @click="showFragmentsModal = true" class="bg-amber-600/20 border border-amber-500/50 text-amber-300 hover:bg-amber-600 hover:text-slate-900 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+              <i class="fas fa-gem"></i> Spreadsheet Fragments
             </button>
           </div>
 
           <button @click="resetToDefaults()" class="text-slate-500 hover:text-red-400 text-xs transition flex items-center gap-1">
-            <i class="fas fa-rotate-left"></i> Restaurar Padrão
+            <i class="fas fa-rotate-left"></i> Restore Defaults
           </button>
         </div>
       </section>
@@ -1500,10 +1586,10 @@ const copyFragmentsText = async () => {
       <div class="flex flex-wrap justify-between items-center gap-2 px-1 text-xs">
         <div class="text-slate-400 flex items-center gap-2">
           <span>
-            Exibindo <strong class="text-blue-400 font-mono">{{ filteredMembers.length }}</strong> guerreiro(s) na lista
+            Showing <strong class="text-blue-400 font-mono">{{ filteredMembers.length }}</strong> warrior(s) in the list
           </span>
-          <span v-if="hideZeroScores && zeroScorersCount > 0" class="text-slate-500 text-[11px] bg-[#0a0f1a] px-2 py-0.5 rounded border border-slate-800">
-            <i class="fas fa-info-circle mr-1 text-slate-400"></i>{{ zeroScorersCount }} com pontuação 0 ocultados da lista
+          <span v-if="hideZeroScores && !isRagnarokEvent && zeroScorersCount > 0" class="text-slate-500 text-[11px] bg-[#0a0f1a] px-2 py-0.5 rounded border border-slate-800">
+            <i class="fas fa-info-circle mr-1 text-slate-400"></i>{{ zeroScorersCount }} with score 0 hidden from the list
           </span>
         </div>
       </div>
@@ -1515,13 +1601,13 @@ const copyFragmentsText = async () => {
             <thead>
               <tr class="bg-[#0a0f1a] border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-bold">
                 <th class="py-4 px-4 w-16 text-center">Pos</th>
-                <th class="py-4 px-4">Guerreiro do Clã</th>
-                <th class="py-4 px-4 text-center">Classificação</th>
-                <th class="py-4 px-4 text-right">Pontuação</th>
-                <th class="py-4 px-4 text-right font-bold text-amber-400">Fragmentos</th>
-                <!-- <th class="py-4 px-4 w-40">Progresso da Meta</th> -->
+                <th class="py-4 px-4">Clan Warrior</th>
+                <th class="py-4 px-4 text-center">Rank</th>
+                <th class="py-4 px-4 text-right">{{ activeEvent.isChestEvent ? 'Purchased Chests' : 'Score' }}</th>
+                <th v-if="!isRagnarokEvent" class="py-4 px-4 text-right font-bold text-amber-400">Fragments</th>
+                <!-- <th class="py-4 px-4 w-40">Target Progress</th> -->
                 <!-- <th class="py-4 px-4 text-center">Status</th> -->
-                <th class="py-4 px-4 text-right">Ações</th>
+                <th class="py-4 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/60">
@@ -1547,10 +1633,10 @@ const copyFragmentsText = async () => {
                     <span>{{ m.name }}</span>
                     <span v-if="m.notes" class="text-[11px] font-normal text-slate-500 italic">({{ m.notes }})</span>
                   </div>
-                  <div class="text-[11px] text-slate-500">{{ m.role || 'Membro do Clã' }}</div>
+                  <div class="text-[11px] text-slate-500">{{ m.role || 'Clan Member' }}</div>
                 </td>
 
-                <!-- Classificação Tag -->
+                <!-- Rank tag -->
                 <td class="py-3 px-4 text-center">
                   <span 
                     class="px-2.5 py-0.5 rounded text-[11px] font-mono border"
@@ -1562,12 +1648,13 @@ const copyFragmentsText = async () => {
 
                 <!-- Score -->
                 <td class="py-3 px-4 text-right font-mono font-bold text-slate-100">
-                  {{ formatNumber(m.currentScore) }}
+                  <span>{{ formatNumber(m.currentScore) }} {{ activeEvent.unitName }}</span>
+                  <span v-if="isRagnarokEvent" class="block text-[10px] font-sans" :class="m.currentScore === 0 ? 'text-red-400' : m.currentScore === 5 ? 'text-emerald-400' : m.currentScore > 5 ? 'text-amber-300' : 'text-slate-400'">{{ m.eventStatus }}</span>
                 </td>
 
-                <!-- Fragment Allocation (Direto da Planilha) -->
-                <td class="py-3 px-4 text-right font-mono">
-                  <div v-if="m.fragmentsPending" class="text-xs text-slate-500 italic">Pendente</div>
+                <!-- Fragment allocation (directly from the spreadsheet) -->
+                <td v-if="!isRagnarokEvent" class="py-3 px-4 text-right font-mono">
+                  <div v-if="m.fragmentsPending" class="text-xs text-slate-500 italic">Pending</div>
                   <div v-else class="font-bold text-amber-300 text-xs">{{ formatNumber(m.fragmentsAllocated) }} frag</div>
                   <div v-if="m.sharePctStr && !m.fragmentsPending" class="text-[10px] text-slate-500">{{ m.sharePctStr }}</div>
                 </td>
@@ -1597,26 +1684,26 @@ const copyFragmentsText = async () => {
                     v-if="m.isCompleted" 
                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
                   >
-                    <i class="fas fa-check text-[10px]"></i> Meta OK
+                    <i class="fas fa-check text-[10px]"></i> Target OK
                   </span>
                   <span 
                     v-else 
                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30"
                   >
-                    <i class="fas fa-hourglass-half text-[10px]"></i> Pendente
+                    <i class="fas fa-hourglass-half text-[10px]"></i> Pending
                   </span>
                 </td> -->
 
                 <!-- Actions -->
                 <td class="py-3 px-4 text-right">
                   <div class="flex justify-end gap-2">
-                    <button v-if="activeEvent.dailyMissions" @click="openMissionCalcModal(m)" class="text-amber-400 hover:text-amber-300 p-1 transition" title="Calcular Missões Diárias">
+                    <button v-if="activeEvent.dailyMissions" @click="openMissionCalcModal(m)" class="text-amber-400 hover:text-amber-300 p-1 transition" title="Calculate Daily Missions">
                       <i class="fas fa-calculator"></i>
                     </button>
-                    <button @click="openAddMemberModal(m)" class="text-slate-400 hover:text-blue-400 p-1 transition" title="Editar Pontuação">
+                    <button @click="openAddMemberModal(m)" class="text-slate-400 hover:text-blue-400 p-1 transition" title="Edit Score">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button @click="deleteMember(m)" class="text-slate-500 hover:text-red-400 p-1 transition" title="Excluir">
+                    <button @click="deleteMember(m)" class="text-slate-500 hover:text-red-400 p-1 transition" title="Delete">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </div>
@@ -1624,12 +1711,12 @@ const copyFragmentsText = async () => {
               </tr>
 
               <tr v-if="filteredMembers.length === 0">
-                <td colspan="8" class="py-12 text-center text-slate-500">
+                <td :colspan="isRagnarokEvent ? 5 : 6" class="py-12 text-center text-slate-500">
                   <i class="fas fa-user-slash text-3xl mb-2 block"></i>
-                  Nenhum guerreiro com pontuação encontrado com os filtros selecionados.
+                  No warrior with a score was found with the selected filters.
                   <div v-if="hideZeroScores && zeroScorersCount > 0" class="mt-2">
                     <button @click="hideZeroScores = false" class="text-xs text-blue-400 hover:underline">
-                      Exibir os {{ zeroScorersCount }} membros com pontuação 0
+                      Show the {{ zeroScorersCount }} members with score 0
                     </button>
                   </div>
                 </td>
@@ -1659,7 +1746,7 @@ const copyFragmentsText = async () => {
               <span v-else class="text-xs font-bold text-slate-500">#{{ idx + 1 }}</span>
               <div>
                 <h3 class="font-bold text-slate-100 text-base leading-tight">{{ m.name }}</h3>
-                <span class="text-xs text-slate-500">{{ m.role || 'Membro do Clã' }}</span>
+                <span class="text-xs text-slate-500">{{ m.role || 'Clan Member' }}</span>
               </div>
             </div>
 
@@ -1674,23 +1761,28 @@ const copyFragmentsText = async () => {
           <!-- Score Card Body -->
           <div class="bg-[#0a0f1a] p-3 rounded-lg border border-slate-800/80 mb-3 space-y-2">
             <div class="flex justify-between items-baseline">
-              <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Pontuação</span>
-              <span class="text-lg font-mono font-bold text-slate-100">{{ formatNumber(m.currentScore) }}</span>
+              <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</span>
+              <span class="text-lg font-mono font-bold text-slate-100">{{ formatNumber(m.currentScore) }} {{ activeEvent.unitName }}</span>
+            </div>
+
+            <div v-if="isRagnarokEvent" class="flex justify-between items-baseline pt-1 border-t border-slate-800/60">
+              <span class="text-[11px] text-slate-400 font-bold">Status:</span>
+              <span class="text-xs font-bold" :class="m.currentScore === 0 ? 'text-red-400' : m.currentScore === 5 ? 'text-emerald-400' : m.currentScore > 5 ? 'text-amber-300' : 'text-slate-400'">{{ m.eventStatus }}</span>
             </div>
 
             <!-- Fragment Allocation Badge -->
-            <div class="flex justify-between items-baseline pt-1 border-t border-slate-800/60">
+            <div v-if="!isRagnarokEvent" class="flex justify-between items-baseline pt-1 border-t border-slate-800/60">
               <span class="text-[11px] text-amber-400 font-bold flex items-center gap-1">
-                <i class="fas fa-gem"></i> Fragmentos:
+                <i class="fas fa-gem"></i> Fragments:
               </span>
-              <span v-if="m.fragmentsPending" class="text-xs text-slate-500 italic">Pendente</span>
+              <span v-if="m.fragmentsPending" class="text-xs text-slate-500 italic">Pending</span>
               <span v-else class="text-xs font-mono font-bold text-amber-300">{{ formatNumber(m.fragmentsAllocated) }} <span class="text-[10px] text-slate-500 font-normal">({{ m.sharePctStr }})</span></span>
             </div>
 
             <!-- Progress Bar -->
             <!-- <div class="space-y-1">
               <div class="flex justify-between text-[11px]">
-                <span class="text-slate-400">Progresso Meta</span>
+                <span class="text-slate-400">Target Progress</span>
                 <span class="font-bold text-blue-400">{{ m.progressPct }}%</span>
               </div>
               <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
@@ -1706,20 +1798,20 @@ const copyFragmentsText = async () => {
           <!-- Card Footer -->
           <!-- <div class="flex justify-between items-center text-xs pt-2 border-t border-slate-800">
             <span v-if="m.isCompleted" class="text-emerald-400 font-bold flex items-center gap-1">
-              <i class="fas fa-check-circle"></i> Meta Atingida
+              <i class="fas fa-check-circle"></i> Target Reached
             </span>
             <span v-else class="text-amber-400 font-bold flex items-center gap-1">
-              <i class="fas fa-hourglass-half"></i> Pendente
+              <i class="fas fa-hourglass-half"></i> Pending
             </span>
 
             <div class="flex gap-2">
-              <button v-if="activeEvent.dailyMissions" @click="openMissionCalcModal(m)" class="text-amber-400 hover:text-amber-300 p-1" title="Calcular Missões Diárias">
+              <button v-if="activeEvent.dailyMissions" @click="openMissionCalcModal(m)" class="text-amber-400 hover:text-amber-300 p-1" title="Calculate Daily Missions">
                 <i class="fas fa-calculator"></i>
               </button>
-              <button @click="openAddMemberModal(m)" class="text-slate-400 hover:text-blue-400 p-1" title="Editar">
+              <button @click="openAddMemberModal(m)" class="text-slate-400 hover:text-blue-400 p-1" title="Edit">
                 <i class="fas fa-edit"></i>
               </button>
-              <button @click="deleteMember(m)" class="text-slate-500 hover:text-red-400 p-1" title="Excluir">
+              <button @click="deleteMember(m)" class="text-slate-500 hover:text-red-400 p-1" title="Delete">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
@@ -1729,17 +1821,17 @@ const copyFragmentsText = async () => {
 
     </main>
 
-    <!-- === MODAL 1: ADICIONAR / EDITAR PONTUAÇÃO DE MEMBRO === -->
+    <!-- === MODAL 1: ADD / EDIT MEMBER SCORE === -->
     <Transition name="fade">
       <div v-if="showAddModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <!-- Overlay para fechar dropdown ao clicar fora -->
+        <!-- Overlay to close the dropdown when clicking outside -->
         <div v-if="isMemberDropdownOpen" @click="isMemberDropdownOpen = false" class="fixed inset-0 z-10"></div>
 
         <div class="bg-[#0b101a] border border-slate-700 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative z-20">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <h3 class="text-lg font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
               <i class="fas fa-user-edit text-blue-400"></i>
-              {{ editingMember ? 'Editar Pontuação de Membro' : 'Adicionar Pontuação / Membro' }}
+              {{ editingMember ? 'Edit Member Score' : 'Add Score / Member' }}
             </h3>
             <button @click="showAddModal = false" class="text-slate-500 hover:text-slate-200">
               <i class="fas fa-times text-xl"></i>
@@ -1748,16 +1840,16 @@ const copyFragmentsText = async () => {
 
           <div class="space-y-4">
 
-            <!-- SELETOR DE MEMBRO / NOVO MEMBRO -->
+            <!-- MEMBER SELECTOR / NEW MEMBER -->
             <div class="relative">
               <div class="flex items-center justify-between mb-1.5">
                 <label class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
                   <i class="fas fa-user-shield text-blue-400"></i>
-                  <span>Guerreiro do Clã</span>
-                  <span class="text-[10px] text-slate-500 font-normal lowercase">(clãMembers.js)</span>
+                  <span>Clan Warrior</span>
+                  <span class="text-[10px] text-slate-500 font-normal lowercase">(clanMembers.js)</span>
                 </label>
 
-                <!-- Alternar entre Seletor e Novo Membro -->
+                <!-- Toggle between selector and new member -->
                 <button 
                   type="button"
                   @click="toggleCustomMemberMode()" 
@@ -1767,14 +1859,14 @@ const copyFragmentsText = async () => {
                     : 'bg-emerald-950/50 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/60'"
                 >
                   <i :class="isCustomMemberMode ? 'fas fa-users' : 'fas fa-user-plus'"></i>
-                  <span>{{ isCustomMemberMode ? 'Selecionar da Lista Oficial' : '+ Cadastrar Novo Membro' }}</span>
+                  <span>{{ isCustomMemberMode ? 'Select from Official List' : '+ Register New Member' }}</span>
                 </button>
               </div>
 
-              <!-- MODO 1: SELETOR DE MEMBROS (clãMembers.js + cadastrados) -->
+              <!-- MODE 1: MEMBER SELECTOR (clanMembers.js + registered members) -->
               <div v-if="!isCustomMemberMode" class="relative">
                 
-                <!-- Membro Selecionado Box -->
+                <!-- Selected member box -->
                 <div v-if="memberForm.name" class="flex items-center justify-between bg-slate-900/90 border border-blue-500/50 rounded-lg p-2.5 shadow-inner">
                   <div class="flex items-center gap-2.5 min-w-0">
                     <span class="px-2 py-0.5 rounded text-[11px] font-mono border shrink-0" :class="getRankBadgeClass(memberForm.rank)">
@@ -1782,25 +1874,25 @@ const copyFragmentsText = async () => {
                     </span>
                     <div class="truncate">
                       <span class="font-bold text-slate-100 text-sm block truncate">{{ memberForm.name }}</span>
-                      <span class="text-[11px] text-slate-400 block truncate">{{ memberForm.role || 'Membro do Clã' }}</span>
+                      <span class="text-[11px] text-slate-400 block truncate">{{ memberForm.role || 'Clan Member' }}</span>
                     </div>
                   </div>
                   <div class="flex items-center gap-2 shrink-0">
                     <span v-if="isMemberFromOfficialList(memberForm.name)" class="text-[10px] uppercase font-bold text-blue-400 bg-blue-950/70 border border-blue-500/30 px-2 py-0.5 rounded">
-                      Oficial
+                      Official
                     </span>
                     <button 
                       type="button" 
                       @click="clearSelectedMember()" 
                       class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded transition flex items-center gap-1 border border-slate-700" 
-                      title="Alterar membro selecionado"
+                      title="Change selected member"
                     >
-                      <i class="fas fa-rotate text-[10px]"></i> Trocar
+                      <i class="fas fa-rotate text-[10px]"></i> Change
                     </button>
                   </div>
                 </div>
 
-                <!-- Input de Busca quando nenhum membro está selecionado -->
+                <!-- Search input when no member is selected -->
                 <div v-else class="relative">
                   <div class="relative flex items-center">
                     <i class="fas fa-search absolute left-3 text-slate-500 text-sm pointer-events-none"></i>
@@ -1809,7 +1901,7 @@ const copyFragmentsText = async () => {
                       type="text" 
                       @focus="isMemberDropdownOpen = true"
                       @click="isMemberDropdownOpen = true"
-                      placeholder="Buscar membro na lista oficial (ex: Foli, Elanin, White Fang)..." 
+                      placeholder="Search the official member list (for example: Foli, Elanin, White Fang)..."
                       class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg pl-9 pr-10 py-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 transition"
                     >
                     <button 
@@ -1821,24 +1913,24 @@ const copyFragmentsText = async () => {
                     </button>
                   </div>
 
-                  <!-- Dropdown de Membros -->
+                  <!-- Member dropdown -->
                   <div 
                     v-if="isMemberDropdownOpen" 
                     class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#0c121e] border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-60 flex flex-col"
                   >
                     <!-- Header do Dropdown -->
                     <div class="bg-slate-900/90 px-3 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                      <span>{{ filteredSelectorMembers.length }} membros disponíveis</span>
+                      <span>{{ filteredSelectorMembers.length }} members available</span>
                       <button 
                         type="button" 
                         @click="enableCustomMemberMode(memberSearchQuery)" 
                         class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 text-[11px]"
                       >
-                        <i class="fas fa-plus"></i> Novo Membro
+                        <i class="fas fa-plus"></i> New Member
                       </button>
                     </div>
 
-                    <!-- Lista com Scroll -->
+                    <!-- Scrollable list -->
                     <div class="overflow-y-auto custom-scrollbar divide-y divide-slate-800/60">
                       <button 
                         type="button"
@@ -1853,7 +1945,7 @@ const copyFragmentsText = async () => {
                           </span>
                           <div class="truncate">
                             <span class="font-bold text-slate-200 text-xs group-hover:text-blue-300 transition block truncate">{{ m.name }}</span>
-                            <span class="text-[10px] text-slate-400 block truncate">{{ m.role || 'Membro do Clã' }}</span>
+                            <span class="text-[10px] text-slate-400 block truncate">{{ m.role || 'Clan Member' }}</span>
                           </div>
                         </div>
                         <div class="text-right shrink-0 text-[11px] font-mono">
@@ -1866,15 +1958,15 @@ const copyFragmentsText = async () => {
                         </div>
                       </button>
 
-                      <!-- Se não encontrar correspondência -->
+                      <!-- No match found -->
                       <div v-if="filteredSelectorMembers.length === 0" class="p-4 text-center text-xs text-slate-400 space-y-2">
-                        <p>Nenhum guerreiro encontrado com "<span class="text-slate-200 font-bold">{{ memberSearchQuery }}</span>".</p>
+                        <p>No warrior found for "<span class="text-slate-200 font-bold">{{ memberSearchQuery }}</span>".</p>
                         <button 
                           type="button"
                           @click="enableCustomMemberMode(memberSearchQuery)"
                           class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition inline-flex items-center gap-1.5 shadow-lg"
                         >
-                          <i class="fas fa-user-plus"></i> Adicionar "{{ memberSearchQuery }}" como novo membro
+                          <i class="fas fa-user-plus"></i> Add "{{ memberSearchQuery }}" as a new member
                         </button>
                       </div>
                     </div>
@@ -1883,30 +1975,30 @@ const copyFragmentsText = async () => {
 
               </div>
 
-              <!-- MODO 2: DIGITAR NOVO MEMBRO (quando não está na lista oficial) -->
+              <!-- MODE 2: TYPE A NEW MEMBER (when not on the official list) -->
               <div v-else class="space-y-1">
                 <div class="relative">
                   <input 
                     v-model="memberForm.name" 
                     type="text" 
-                    placeholder="Digite o nome do novo guerreiro..." 
+                    placeholder="Enter the new warrior's name..."
                     class="w-full bg-[#0a0f1a] border border-emerald-500/50 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-emerald-400 transition"
                   >
                   <span class="absolute right-2.5 top-2.5 text-[10px] font-bold uppercase text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2 py-0.5 rounded">
-                    Novo Membro
+                    New Member
                   </span>
                 </div>
                 <p class="text-[11px] text-slate-400">
-                  Este jogador não consta em clãMembers.js e será adicionado ao registro do clã.
+                  This player is not listed in clanMembers.js and will be added to the clan roster.
                 </p>
               </div>
 
             </div>
 
-            <!-- CLASSIFICAÇÃO E CARGO -->
+            <!-- RANK AND ROLE -->
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Classificação (G - G9)</label>
+                <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Rank (G - G9)</label>
                 <select v-model="memberForm.rank" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-blue-500 font-mono">
                   <option value="G9">G9 (Guarda 9)</option>
                   <option value="G8">G8 (Guarda 8)</option>
@@ -1921,61 +2013,65 @@ const copyFragmentsText = async () => {
               </div>
 
               <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Função / Cargo</label>
-                <input v-model="memberForm.role" type="text" placeholder="Ex: Oficial Militar" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-blue-500">
+                <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Role</label>
+                <input v-model="memberForm.role" type="text" placeholder="For example: Military Officer" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-blue-500">
               </div>
             </div>
 
-            <!-- PONTUAÇÃO DO EVENTO ATIVO -->
+            <!-- ACTIVE EVENT SCORE -->
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-blue-400">
-                  Pontuação em {{ activeEvent.name }}
+                  {{ activeEvent.isChestEvent ? 'Purchased chests in' : 'Score in' }} {{ activeEvent.name }}
                 </label>
                 <button 
+                  v-if="!activeEvent.isChestEvent"
                   type="button" 
                   @click="setScoreToRankMax()" 
                   class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-500/30 px-2 py-0.5 rounded transition"
-                  title="Definir pontuação para a meta máxima deste nível de Guarda"
+                  title="Set the score to the maximum target for this Guard rank"
                 >
-                  <i class="fas fa-bullseye"></i> Meta 100% ({{ formatShortNumber(classificationMaxScores[memberForm.rank] || activeEvent.minTarget) }})
+                  <i class="fas fa-bullseye"></i> 100% Target ({{ formatShortNumber(classificationMaxScores[memberForm.rank] || activeEvent.minTarget) }})
                 </button>
               </div>
-              <input v-model.number="memberForm.score" type="number" min="0" placeholder="Ex: 1500000" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm font-mono text-slate-100 outline-none focus:border-blue-500">
+              <input v-model.number="memberForm.score" type="number" min="0" :placeholder="activeEvent.isChestEvent ? 'Ex: 5' : 'Ex: 1500000'" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm font-mono text-slate-100 outline-none focus:border-blue-500">
               <div class="flex justify-between items-center text-[11px] text-slate-500 mt-1">
                 <span>Formatado: <strong class="text-slate-200">{{ formatNumber(memberForm.score || 0) }}</strong> {{ activeEvent.unitName }}</span>
-                <span :class="Number(memberForm.score || 0) >= (classificationMaxScores[memberForm.rank] || activeEvent.minTarget) ? 'text-emerald-400 font-bold' : 'text-amber-400'">
-                  {{ Number(memberForm.score || 0) >= (classificationMaxScores[memberForm.rank] || activeEvent.minTarget) ? '✓ Meta Atingida' : 'Pendente' }}
+                <span v-if="activeEvent.isChestEvent" :class="memberForm.score === 0 ? 'text-red-400 font-bold' : memberForm.score === 5 ? 'text-emerald-400 font-bold' : memberForm.score > 5 ? 'text-amber-300 font-bold' : 'text-slate-400'">
+                  {{ getRagnarokStatus(Number(memberForm.score || 0)) }}
+                </span>
+                <span v-else :class="Number(memberForm.score || 0) >= (classificationMaxScores[memberForm.rank] || activeEvent.minTarget) ? 'text-emerald-400 font-bold' : 'text-amber-400'">
+                  {{ Number(memberForm.score || 0) >= (classificationMaxScores[memberForm.rank] || activeEvent.minTarget) ? '✓ Target Reached' : 'Pending' }}
                 </span>
               </div>
             </div>
 
-            <!-- OBSERVAÇÕES -->
+            <!-- NOTES -->
             <div>
-              <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Observações (Opcional)</label>
-              <input v-model="memberForm.notes" type="text" placeholder="Ex: Meta atingida / Destaque de ralis" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-blue-500">
+              <label class="block text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Notes (Optional)</label>
+              <input v-model="memberForm.notes" type="text" placeholder="For example: Target reached / Rally highlight" class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-blue-500">
             </div>
           </div>
 
           <div class="flex justify-end gap-3 border-t border-slate-800 pt-3">
             <button @click="showAddModal = false" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200">
-              Cancelar
+              Cancel
             </button>
             <button @click="saveMemberForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-              Salvar Registro
+              Save Record
             </button>
           </div>
         </div>
       </div>
     </Transition>
 
-    <!-- === MODAL 2: IMPORTAÇÃO EM LOTE === -->
+    <!-- === MODAL 2: BATCH IMPORT === -->
     <Transition name="fade">
       <div v-if="showBatchModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#0b101a] border border-slate-700 rounded-xl max-w-xl w-full p-6 shadow-2xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <h3 class="text-lg font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-              <i class="fas fa-file-import text-blue-400"></i> Importar Pontuações em Lote
+              <i class="fas fa-file-import text-blue-400"></i> Import Scores in Batch
             </h3>
             <button @click="showBatchModal = false" class="text-slate-500 hover:text-slate-200">
               <i class="fas fa-times text-xl"></i>
@@ -1983,8 +2079,8 @@ const copyFragmentsText = async () => {
           </div>
 
           <p class="text-xs text-slate-400">
-            Cole as pontuações copiadas do Total Battle ou Discord (uma por linha). Aceita tanto <strong>Pontuação Nome</strong> quanto <strong>Nome Pontuação</strong>.
-            <br><span class="text-blue-400 font-bold">Exemplos aceitos:</span> <code>262375 Foli</code> ou <code>155.650 Elanin</code> ou <code>42.5M - White Fang</code> ou <code>FenrirSlayer 44M</code>
+            Paste scores copied from Total Battle or Discord (one per line). Accepts both <strong>Score Name</strong> and <strong>Name Score</strong>.
+            <br><span class="text-blue-400 font-bold">Accepted examples:</span> <code>262375 Foli</code>, <code>155.650 Elanin</code>, <code>42.5M - White Fang</code>, or <code>FenrirSlayer 44M</code>
           </p>
 
           <textarea 
@@ -2008,10 +2104,10 @@ const copyFragmentsText = async () => {
 
           <div class="flex justify-end gap-3 border-t border-slate-800 pt-3">
             <button @click="showBatchModal = false" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200">
-              Cancelar
+              Cancel
             </button>
             <button @click="applyBatchImport()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-              Aplicar Importação
+              Apply Import
             </button>
           </div>
         </div>
@@ -2032,7 +2128,7 @@ const copyFragmentsText = async () => {
           </div>
 
           <p class="text-xs text-slate-400">
-            Resumo formatado em texto simples pronto para ser postado no chat do Total Battle ou no Discord do clã:
+            Plain-text summary ready to post in Total Battle chat or the clan Discord:
           </p>
 
           <textarea 
@@ -2044,26 +2140,26 @@ const copyFragmentsText = async () => {
 
           <div class="flex justify-end gap-3 border-t border-slate-800 pt-3">
             <button @click="showExportModal = false" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200">
-              Fechar
+              Close
             </button>
             <button @click="copyChatExport()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-[0_0_10px_rgba(59,130,246,0.3)] flex items-center gap-2">
-              <i class="fas fa-copy"></i> Copiar Mensagem
+              <i class="fas fa-copy"></i> Copy Message
             </button>
           </div>
         </div>
       </div>
     </Transition>
 
-    <!-- === MODAL 4: LISTA OFICIAL DE MEMBROS DO CLÃ === -->
+    <!-- === MODAL 4: OFFICIAL CLAN MEMBER LIST === -->
     <Transition name="fade">
       <div v-if="showRosterModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#0b101a] border border-slate-700 rounded-xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <div>
               <h3 class="text-lg font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-                <i class="fas fa-users text-blue-400"></i> Roster Oficial de Membros do Clã
+                <i class="fas fa-users text-blue-400"></i> Official Clan Member Roster
               </h3>
-              <p class="text-xs text-slate-400">Total cadastrado: <strong class="text-blue-400">{{ members.length }}</strong> de 100 membros</p>
+              <p class="text-xs text-slate-400">Registered: <strong class="text-blue-400">{{ members.length }}</strong> of 100 members</p>
             </div>
             <button @click="showRosterModal = false" class="text-slate-500 hover:text-slate-200">
               <i class="fas fa-times text-xl"></i>
@@ -2076,7 +2172,7 @@ const copyFragmentsText = async () => {
             <input 
               v-model="rosterSearchQuery" 
               type="text" 
-              placeholder="Filtrar membro na lista oficial..." 
+              placeholder="Filter the official member list..."
               class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:border-blue-500 outline-none"
             >
           </div>
@@ -2100,26 +2196,26 @@ const copyFragmentsText = async () => {
 
           <div class="flex justify-between items-center border-t border-slate-800 pt-3">
             <button @click="copyRosterText()" class="bg-slate-800 border border-slate-600 text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2">
-              <i class="fas fa-copy"></i> Copiar Lista de Membros
+              <i class="fas fa-copy"></i> Copy Member List
             </button>
             <button @click="showRosterModal = false" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition">
-              Fechar
+              Close
             </button>
           </div>
         </div>
       </div>
     </Transition>
 
-    <!-- === MODAL 5: CALCULADORA DE DISTRIBUIÇÃO DE FRAGMENTOS === -->
+    <!-- === MODAL 5: FRAGMENT DISTRIBUTION CALCULATOR === -->
     <Transition name="fade">
       <div v-if="showFragmentsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#0b101a] border border-amber-500/40 rounded-xl max-w-3xl w-full p-6 shadow-2xl space-y-5">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <div>
               <h3 class="text-lg font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-                <i class="fas fa-gem text-amber-400"></i> Distribuição Proporcional de Fragmentos
+                <i class="fas fa-gem text-amber-400"></i> Proportional Fragment Distribution
               </h3>
-              <p class="text-xs text-slate-400">Fórmula de cálculo: <code class="text-amber-300 bg-slate-900 px-2 py-0.5 rounded font-mono">=ROUND(Pontuação / TotalClã * TotalFragmentos)</code></p>
+              <p class="text-xs text-slate-400">Calculation formula: <code class="text-amber-300 bg-slate-900 px-2 py-0.5 rounded font-mono">=ROUND(Score / ClanTotal * TotalFragments)</code></p>
             </div>
             <button @click="showFragmentsModal = false" class="text-slate-500 hover:text-slate-200">
               <i class="fas fa-times text-xl"></i>
@@ -2130,7 +2226,7 @@ const copyFragmentsText = async () => {
           <div class="bg-[#0a0f1a] border border-slate-800 p-4 rounded-xl space-y-3">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Total de Fragmentos a Distribuir ($E$1)</label>
+                <label class="block text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Total Fragments to Distribute ($E$1)</label>
                 <div class="flex items-center gap-2">
                   <input 
                     v-model.number="totalFragmentsToDistribute" 
@@ -2139,7 +2235,7 @@ const copyFragmentsText = async () => {
                     placeholder="Ex: 1580" 
                     class="bg-[#030508] border border-amber-500/50 rounded-lg px-3 py-2 text-base font-mono font-bold text-slate-100 outline-none focus:border-amber-400 w-44"
                   >
-                  <span class="text-xs text-slate-400">fragmentos</span>
+                  <span class="text-xs text-slate-400">fragments</span>
                 </div>
               </div>
 
@@ -2154,15 +2250,15 @@ const copyFragmentsText = async () => {
 
             <div class="grid grid-cols-3 gap-3 pt-2 border-t border-slate-800/80 text-center">
               <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Total Clã</span>
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Clan Total</span>
                 <p class="text-sm font-mono font-bold text-slate-200">{{ formatShortNumber(totalClanScore) }}</p>
               </div>
               <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Total Distribuído</span>
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Total Distributed</span>
                 <p class="text-sm font-mono font-bold text-amber-400">{{ formatNumber(totalDistributedFragments) }} frag</p>
               </div>
               <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Membros Elegíveis</span>
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Eligible Members</span>
                 <p class="text-sm font-mono font-bold text-emerald-400">{{ members.filter(m => (m.scores && m.scores[activeEventId] > 0)).length }}</p>
               </div>
             </div>
@@ -2174,7 +2270,7 @@ const copyFragmentsText = async () => {
             <input 
               v-model="fragmentsSearchQuery" 
               type="text" 
-              placeholder="Buscar guerreiro na distribuição..." 
+              placeholder="Search warrior in the distribution..."
               class="w-full bg-[#0a0f1a] border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:border-amber-500 outline-none"
             >
           </div>
@@ -2185,11 +2281,11 @@ const copyFragmentsText = async () => {
               <thead class="bg-slate-900 border-b border-slate-800 font-bold uppercase tracking-wider text-slate-400">
                 <tr>
                   <th class="py-2.5 px-3 w-12 text-center">Pos</th>
-                  <th class="py-2.5 px-3">Guerreiro</th>
-                  <th class="py-2.5 px-3 text-center">Classificação</th>
-                  <th class="py-2.5 px-3 text-right">Pontuação</th>
-                  <th class="py-2.5 px-3 text-right">% do Clã</th>
-                  <th class="py-2.5 px-3 text-right text-amber-400">Fragmentos (=ROUND)</th>
+                  <th class="py-2.5 px-3">Warrior</th>
+                  <th class="py-2.5 px-3 text-center">Rank</th>
+                  <th class="py-2.5 px-3 text-right">Score</th>
+                  <th class="py-2.5 px-3 text-right">% of Clan</th>
+                  <th class="py-2.5 px-3 text-right text-amber-400">Fragments (=ROUND)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-800/50">
@@ -2213,10 +2309,10 @@ const copyFragmentsText = async () => {
 
           <div class="flex justify-between items-center border-t border-slate-800 pt-3">
             <button @click="copyFragmentsText()" class="bg-amber-600/20 border border-amber-500/50 text-amber-300 hover:bg-amber-600 hover:text-slate-900 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
-              <i class="fas fa-copy"></i> Copiar Distribuição para Chat/Discord
+              <i class="fas fa-copy"></i> Copy Distribution to Chat/Discord
             </button>
             <button @click="showFragmentsModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition">
-              Fechar
+              Close
             </button>
           </div>
         </div>
